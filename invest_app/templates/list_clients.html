@@ -1,0 +1,61 @@
+<!-- myapp/templates/myapp/list_client.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List of Clients</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 20px;
+        }
+        .client-list {
+            width: auto;
+            margin: auto;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        .client-item {
+            margin-bottom: 5px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .back-button {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #006dd1;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="client-list">
+        <h2>Clients</h2>
+        {% if clients %}
+            {% for client in clients %}
+                <div class="client-item">
+                    <p><strong>ID:</strong> {{ client.investor_id }}<strong> Name:</strong> {{ client.first_name }} {{ client.last_name }}</p>
+<!--                    <p><strong>Investor ID:</strong> {{ client.investor_id }}</p>-->
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No clients found.</p>
+        {% endif %}
+        <button class="back-button" onclick="location.href='{% url 'home' %}'">Back to Home</button>
+    </div>
+
+</body>
+</html>
