@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-client = gspread.service_account(filename=os.environ.get('GOOGLE_SERVICE_ACCOUNT_FILE'))
+client = gspread.service_account(filename=os.path.join(os.getcwd(), 'invest_app/faes-coupons-c4ea63cd2045.json'))
 
 # Create a Google Spreadsheet instance
 spreadsheet = client.open("Coupons").worksheet('Investors')
