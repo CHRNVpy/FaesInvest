@@ -53,7 +53,7 @@ def investment_calc(investor):
     rest_days_in_first_month = days_in_first_month - start_date.day
 
     for month in date_range_monthly:
-        if month == date_range_monthly[0] and days_in_first_month > rest_days_in_first_month:
+        if month == date_range_monthly[0] and start_date.day != 1:
             monthly_interest_month = amount_invested * daily_rate * rest_days_in_first_month
         elif month == date_range_monthly[-1]:
             # Calculate interest for the last month based on days passed
