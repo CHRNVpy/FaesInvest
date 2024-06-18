@@ -34,6 +34,7 @@ def investment_calc(investor):
 
     # Create a dictionary to store the data
     data = {
+        'ID': investor.investor_id,
         'Investor': investor_name,
         'Amount': amount_invested,
         'Close date': datetime.strftime(investor.investment_date, '%m/%d/%Y'),
@@ -107,6 +108,7 @@ def reinvestment_calc(investor):
 
     # Create a dictionary to store the data
     data = {
+        'ID': investor.investor_id,
         'Investor': investor_name,
         'Amount': amount_invested,
         'Close date': datetime.strftime(investor.investment_date, '%m/%d/%Y'),
