@@ -1,4 +1,3 @@
-<!-- myapp/templates/myapp/list_client.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,15 +39,31 @@
             background-color: #0056b3;
         }
     </style>
+    <script>
+        function toggleFilter() {
+            const filterCheckbox = document.getElementById('filterCheckbox');
+            const filter = filterCheckbox.checked ? 'true' : 'false';
+            const url = new URL(window.location.href);
+            url.searchParams.set('filter', filter);
+            window.location.href = url.toString();
+        }
+    </script>
 </head>
 <body>
     <div class="client-list">
         <h2>Clients</h2>
+        <label>
+            <input type="checkbox" id="filterCheckbox" onclick="toggleFilter()" {% if filter_contract_end_date %}checked{% endif %}>
+            Show only clients with closed contract
+        </label>
         {% if clients %}
             {% for client in clients %}
                 <div class="client-item">
-                    <p><strong>ID:</strong> {{ client.investor_id }}<strong> Name:</strong> {{ client.first_name }} {{ client.last_name }}</p>
-<!--                    <p><strong>Investor ID:</strong> {{ client.investor_id }}</p>-->
+                    <p>
+                        <a href="{% url 'client_detail' client.id %}">
+                            <strong>ID:</strong> {{ client.investor_id }} <strong>Name:</strong> {{ client.first_name }} {{ client.last_name }}
+                        </a>
+                    </p>
                 </div>
             {% endfor %}
         {% else %}
@@ -56,6 +71,7 @@
         {% endif %}
         <button class="back-button" onclick="location.href='{% url 'home' %}'">Back to Home</button>
     </div>
-
 </body>
 </html>
+
+

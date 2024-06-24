@@ -2,7 +2,9 @@ import json
 from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import Client
 from .google_sheet import update_spreadsheet, get_investors_table
@@ -16,7 +18,7 @@ def home(request):
     return render(request, 'home.html')
 
 
-@login_required
+@csrf_exempt
 def add_client(request):
     if request.method == 'POST':
         investor_id = request.POST.get('investor_id')
@@ -83,8 +85,38 @@ def add_client(request):
 
 @login_required
 def list_clients(request):
-    clients = Client.objects.all()
-    return render(request, 'list_clients.html', {'clients': clients})
+    filter_contract_end_date = request.GET.get('filter', 'false') == 'true'
+
+    if filter_contract_end_date:
+        clients = Client.objects.filter(contract_end_date__isnull=False)
+    else:
+        clients = Client.objects.all()
+
+    return render(request, 'list_clients.html', {
+        'clients': clients,
+        'filter_contract_end_date': filter_contract_end_date,
+    })
+
+
+# views.py
+@login_required()
+def client_detail(request, client_id):
+    client = Client.objects.get(id=client_id)
+    return render(request, 'client_detail.html', {'client': client})
+
+
+@csrf_exempt
+def close_contract(request, client_id):
+    if request.method == 'POST':
+        client = get_object_or_404(Client, id=client_id)
+        end_date = request.POST.get('contract_end_date')
+        if end_date:
+            # Assuming you have a field 'contract_end_date' in your Client model
+            client.contract_end_date = end_date
+            client.save()
+            return JsonResponse({'status': 'success'})
+        return JsonResponse({'status': 'error', 'message': 'Invalid date'}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
 
 @login_required

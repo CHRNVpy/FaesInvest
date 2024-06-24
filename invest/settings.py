@@ -90,8 +90,8 @@ WSGI_APPLICATION = 'invest.wsgi.application'
 #         'ENGINE': 'django.db.backends.postgresql',
 #         'NAME': 'faes_invest',
 #         'USER': 'postgres',
-#         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-#         'HOST': 'db',  # Set to 'db' to use the PostgreSQL Docker container
+#         'PASSWORD': 'postgres', #os.getenv('POSTGRES_PASSWORD'),
+#         'HOST': 'localhost',  # Set to 'db' to use the PostgreSQL Docker container
 #         'PORT': 5432,
 #     }
 # }

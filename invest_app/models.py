@@ -15,6 +15,7 @@ class Client(models.Model):
     investment_rate = models.FloatField()
     investment_amount = models.IntegerField()
     investment_type = models.CharField(max_length=15, choices=INVESTMENT_TYPE_CHOICES)
+    contract_end_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.investor_id})"

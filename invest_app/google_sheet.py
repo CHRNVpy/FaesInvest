@@ -28,7 +28,8 @@ def investment_calc(investor):
     monthly_rate = annual_rate / 12
 
     # Generate date range from start date to current date
-    end_date = datetime.now()
+    close_date = pd.Timestamp(investor.contract_end_date) if investor.contract_end_date else None
+    end_date = close_date if close_date else datetime.now()
     date_range_monthly = pd.date_range(start=start_month, end=end_date, freq='MS')
     # print(date_range_monthly)
 
@@ -86,6 +87,9 @@ def investment_calc(investor):
     for quarter_name, quarterly_interest in quarterly_interests.items():
         data[quarter_name] = round(quarterly_interest, 2)
 
+    if close_date:
+        data['Balance on Close'] = sum([v for k, v in data.items() if k.startswith('Q')]) + data['Balance']
+
     return data
 
 
@@ -103,7 +107,8 @@ def reinvestment_calc(investor):
     monthly_rate = annual_rate / 12
 
     # Generate date range from start date to current date
-    end_date = datetime.now()
+    close_date = pd.Timestamp(investor.contract_end_date) if investor.contract_end_date else None
+    end_date = close_date if close_date else datetime.now()
     date_range_monthly = pd.date_range(start=start_month, end=end_date, freq='MS')
 
     # Create a dictionary to store the data
@@ -169,6 +174,9 @@ def reinvestment_calc(investor):
         data[quarter_name] = round(quarterly_interest, 2)
 
     data['Balance'] = sum([v for k, v in data.items() if k.startswith('Q')]) + data['Balance']
+
+    if close_date:
+        data['Balance on Close'] = data['Balance']
 
     return data
 

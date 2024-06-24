@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Details</title>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 20px;
+        }
+        .client-detail {
+            width: auto;
+            margin: auto;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        .back-button, .close-contract-button {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #006dd1;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover, .close-contract-button:hover {
+            background-color: #0056b3;
+        }
+        .close-contract-button[disabled] {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="client-detail">
+        <h2>Client Details</h2>
+        {% if client.contract_end_date %}
+            <p style="color: red;"><strong>CONTRACT CLOSED</strong> {{ client.contract_end_date }}</p>
+        {% endif %}
+        <p><strong>ID:</strong> {{ client.investor_id }}</p>
+        <p><strong>First Name:</strong> {{ client.first_name }}</p>
+        <p><strong>Last Name:</strong> {{ client.last_name }}</p>
+        <p><strong>Company:</strong> {{ client.company_name }}</p>
+        <p><strong>Start Date:</strong> {{ client.investment_date }}</p>
+        <p><strong>Rate %:</strong> {{ client.investment_rate }}</p>
+        <p><strong>Amount $:</strong> {{ client.investment_amount }}</p>
+        <p><strong>Deposit Type:</strong> {{ client.investment_type }}</p>
+        <!-- Add more fields as needed -->
+        <button class="back-button" onclick="location.href='{% url 'list_clients' %}'">Back to Clients List</button>
+        {% if not client.contract_end_date %}
+            <button class="close-contract-button" id="closeContractBtn">Close Contract</button>
+        {% else %}
+            <button class="close-contract-button" id="closeContractBtn" disabled>Close Contract</button>
+        {% endif %}
+    </div>
+
+    <div id="dialog" title="Select Contract End Date" style="display:none;">
+        <p>Choose a date:</p>
+        <input type="text" id="contractEndDate" name="contract_end_date">
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $("#closeContractBtn").click(function() {
+            $("#dialog").dialog({
+                modal: true,
+                buttons: {
+                    "Close Contract": function() {
+                        var selectedDate = $("#contractEndDate").val();
+                        if (selectedDate) {
+                            // Send AJAX request to close the contract
+                            $.ajax({
+                                url: "{% url 'close_contract' client.id %}",
+                                type: "POST",
+                                data: {
+                                    'contract_end_date': selectedDate,
+                                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                                },
+                                success: function(response) {
+                                    if (response.status === 'success') {
+                                        alert("Contract closed with end date: " + selectedDate);
+                                        location.reload(); // Reload the page to see the updated status
+                                    } else {
+                                        alert("Error: " + response.message);
+                                    }
+                                },
+                                error: function(xhr, status, error) {
+                                    alert("An error occurred: " + error);
+                                }
+                            });
+                            $(this).dialog("close");
+                        } else {
+                            alert("Please select a date.");
+                        }
+                    },
+                    Cancel: function() {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+            $("#contractEndDate").datepicker({
+                dateFormat: "yy-mm-dd"
+            });
+        });
+    });
+</script>
+</body>
+</html>
