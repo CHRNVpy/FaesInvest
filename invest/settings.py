@@ -85,21 +85,16 @@ WSGI_APPLICATION = 'invest.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'faes_invest',
-#         'USER': 'postgres',
-#         'PASSWORD': 'postgres', #os.getenv('POSTGRES_PASSWORD'),
-#         'HOST': 'localhost',  # Set to 'db' to use the PostgreSQL Docker container
-#         'PORT': 5432,
-#     }
-# }
+
 if DEVELOPMENT_MODE is True:
     DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'faes_invest',
+            'USER': 'postgres',
+            'PASSWORD': 'postgres',  # os.getenv('POSTGRES_PASSWORD'),
+            'HOST': 'localhost',  # Set to 'db' to use the PostgreSQL Docker container
+            'PORT': 5432,
         }
     }
 elif len(sys.argv) > 0 and sys.argv[1] != 'collectstatic':

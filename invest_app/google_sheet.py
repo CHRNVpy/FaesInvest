@@ -55,11 +55,16 @@ def investment_calc(investor):
     rest_days_in_first_month = days_in_first_month - start_date.day
 
     for month in date_range_monthly:
-        if month == date_range_monthly[0] and start_date.day != 1:
+        days_in_month = (end_date - month).days + 1
+        if month == date_range_monthly[0] and start_date.day != 1 and start_date.day != 15:
             monthly_interest_month = amount_invested * daily_rate * rest_days_in_first_month
-        elif month == date_range_monthly[-1]:
+        elif month == date_range_monthly[0] and start_date.day == 15:
+            monthly_interest_month = (amount_invested * monthly_rate * (days_in_month / days_in_month)) / 2
+        elif month == date_range_monthly[-1] and end_date.day >= 15:
             # Calculate interest for the last month based on days passed
-            days_in_month = (end_date - month).days + 1
+            monthly_interest_month = amount_invested * monthly_rate * (days_in_month / days_in_month)
+        elif month == date_range_monthly[-1] and start_date.day < 15:
+            # Calculate interest for the last month based on days passed
             monthly_interest_month = amount_invested * daily_rate * days_in_month
         else:
             days_in_month = calendar.monthrange(month.year, month.month)[1]
@@ -135,12 +140,17 @@ def reinvestment_calc(investor):
     accumulated_interest = 0
 
     for month in date_range_monthly:
-        if month == date_range_monthly[0] and start_date.day != 1:
+        days_in_month = (end_date - month).days + 1
+        if month == date_range_monthly[0] and start_date.day != 1 and start_date.day != 15:
             monthly_interest_month = amount_invested * daily_rate * rest_days_in_first_month
-        elif month == date_range_monthly[-1]:
+        elif month == date_range_monthly[0] and start_date.day == 15:
+            monthly_interest_month = (amount_invested * monthly_rate * (days_in_month / days_in_month)) / 2
+        elif month == date_range_monthly[-1] and start_date.day < 15:
             # Calculate interest for the last month based on days passed
-            days_in_month = (end_date - month).days + 1
             monthly_interest_month = amount_invested * daily_rate * days_in_month
+        elif month == date_range_monthly[-1] and end_date.day >= 15:
+            # Calculate interest for the last month based on days passed
+            monthly_interest_month = amount_invested * monthly_rate * (days_in_month / days_in_month)
         else:
             days_in_month = calendar.monthrange(month.year, month.month)[1]
             monthly_interest_month = amount_invested * monthly_rate * (days_in_month / days_in_month)
