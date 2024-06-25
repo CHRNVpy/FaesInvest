@@ -145,12 +145,12 @@ def reinvestment_calc(investor):
             monthly_interest_month = amount_invested * daily_rate * rest_days_in_first_month
         elif month == date_range_monthly[0] and start_date.day == 15:
             monthly_interest_month = (amount_invested * monthly_rate * (days_in_month / days_in_month)) / 2
-        elif month == date_range_monthly[-1] and start_date.day < 15:
-            # Calculate interest for the last month based on days passed
-            monthly_interest_month = amount_invested * daily_rate * days_in_month
         elif month == date_range_monthly[-1] and end_date.day >= 15:
             # Calculate interest for the last month based on days passed
             monthly_interest_month = amount_invested * monthly_rate * (days_in_month / days_in_month)
+        elif month == date_range_monthly[-1] and start_date.day < 15:
+            # Calculate interest for the last month based on days passed
+            monthly_interest_month = amount_invested * daily_rate * days_in_month
         else:
             days_in_month = calendar.monthrange(month.year, month.month)[1]
             monthly_interest_month = amount_invested * monthly_rate * (days_in_month / days_in_month)
