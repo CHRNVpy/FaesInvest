@@ -13,7 +13,7 @@ class Client(models.Model):
     company_name = models.CharField(max_length=100)
     investment_date = models.DateField()
     investment_rate = models.FloatField()
-    investment_amount = models.IntegerField()
+    investment_amount = models.FloatField()
     investment_type = models.CharField(max_length=15, choices=INVESTMENT_TYPE_CHOICES)
     contract_end_date = models.DateField(null=True, blank=True)
 

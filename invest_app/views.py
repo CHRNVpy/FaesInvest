@@ -40,7 +40,7 @@ def add_client(request):
 
         # Validate investment_amount
         try:
-            investment_amount = int(investment_amount)
+            investment_amount = float(investment_amount)
         except ValueError:
             errors.append("Investment amount must be a number.")
 

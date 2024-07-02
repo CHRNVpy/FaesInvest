@@ -73,25 +73,25 @@
     </table>
     <button class="back-button" onclick="location.href='{% url 'home' %}'">Back to Home</button>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const table = document.querySelector('table');
-            const headers = Array.from(table.querySelectorAll('thead th'));
-            const balanceIndex = headers.findIndex(header => header.textContent === 'Balance on Close');
+<!--    <script>-->
+<!--        document.addEventListener('DOMContentLoaded', function() {-->
+<!--            const table = document.querySelector('table');-->
+<!--            const headers = Array.from(table.querySelectorAll('thead th'));-->
+<!--            const balanceIndex = headers.findIndex(header => header.textContent === 'Balance on Close');-->
 
-            if (balanceIndex !== -1) {
-                const rows = table.querySelectorAll('tbody tr');
-                rows.forEach(row => {
-                    const cells = row.querySelectorAll('td');
-                    if (cells[balanceIndex] && cells[balanceIndex].textContent) {
-                        const balance = parseFloat(cells[balanceIndex].textContent.replace(/[^0-9.-]+/g, ""));
-                        if (balance > 0) {  // Adjust this condition based on your needs
-                            row.classList.add('red-background');
-                        }
-                    }
-                });
-            }
-        });
-    </script>
+<!--            if (balanceIndex !== -1) {-->
+<!--                const rows = table.querySelectorAll('tbody tr');-->
+<!--                rows.forEach(row => {-->
+<!--                    const cells = row.querySelectorAll('td');-->
+<!--                    if (cells[balanceIndex] && cells[balanceIndex].textContent) {-->
+<!--                        const balance = parseFloat(cells[balanceIndex].textContent.replace(/[^0-9.-]+/g, ""));-->
+<!--                        if (balance > 0) {  // Adjust this condition based on your needs-->
+<!--                            row.classList.add('red-background');-->
+<!--                        }-->
+<!--                    }-->
+<!--                });-->
+<!--            }-->
+<!--        });-->
+<!--    </script>-->
 </body>
 </html>

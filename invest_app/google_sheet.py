@@ -1,3 +1,5 @@
+import base64
+import json
 import os
 
 import gspread
@@ -8,7 +10,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-client = gspread.service_account(filename=os.path.join(os.getcwd(), 'invest_app/faes-coupons-c4ea63cd2045.json'))
+encoded_service_account = os.getenv('GSPREAD_SERVICE_ACCOUNT')
+
+# Decode the Base64 string to get the JSON content
+service_account_info = json.loads(base64.b64decode(encoded_service_account))
+
+client = gspread.service_account_from_dict(service_account_info)
 
 # Create a Google Spreadsheet instance
 spreadsheet = client.open("Coupons").worksheet('Investors')
@@ -28,8 +35,9 @@ def investment_calc(investor):
     monthly_rate = annual_rate / 12
 
     # Generate date range from start date to current date
+    current_date = pd.Timestamp(datetime.now())
     close_date = pd.Timestamp(investor.contract_end_date) if investor.contract_end_date else None
-    end_date = close_date if close_date else datetime.now()
+    end_date = close_date if close_date else current_date
     date_range_monthly = pd.date_range(start=start_month, end=end_date, freq='MS')
     # print(date_range_monthly)
 
@@ -63,7 +71,7 @@ def investment_calc(investor):
         elif month == date_range_monthly[-1] and end_date.day >= 15:
             # Calculate interest for the last month based on days passed
             monthly_interest_month = amount_invested * monthly_rate * (days_in_month / days_in_month)
-        elif month == date_range_monthly[-1] and start_date.day < 15:
+        elif month == date_range_monthly[-1] and end_date.day < 15:
             # Calculate interest for the last month based on days passed
             monthly_interest_month = amount_invested * daily_rate * days_in_month
         else:
@@ -93,7 +101,7 @@ def investment_calc(investor):
         data[quarter_name] = round(quarterly_interest, 2)
 
     if close_date:
-        data['Balance on Close'] = sum([v for k, v in data.items() if k.startswith('Q')]) + data['Balance']
+        data['Balance'] = sum([v for k, v in data.items() if k.startswith('Q')]) + data['Balance']
 
     return data
 
@@ -112,8 +120,9 @@ def reinvestment_calc(investor):
     monthly_rate = annual_rate / 12
 
     # Generate date range from start date to current date
+    current_date = pd.Timestamp(datetime.now())
     close_date = pd.Timestamp(investor.contract_end_date) if investor.contract_end_date else None
-    end_date = close_date if close_date else datetime.now()
+    end_date = close_date if close_date else current_date
     date_range_monthly = pd.date_range(start=start_month, end=end_date, freq='MS')
 
     # Create a dictionary to store the data
@@ -148,7 +157,7 @@ def reinvestment_calc(investor):
         elif month == date_range_monthly[-1] and end_date.day >= 15:
             # Calculate interest for the last month based on days passed
             monthly_interest_month = amount_invested * monthly_rate * (days_in_month / days_in_month)
-        elif month == date_range_monthly[-1] and start_date.day < 15:
+        elif month == date_range_monthly[-1] and end_date.day < 15:
             # Calculate interest for the last month based on days passed
             monthly_interest_month = amount_invested * daily_rate * days_in_month
         else:
@@ -184,9 +193,6 @@ def reinvestment_calc(investor):
         data[quarter_name] = round(quarterly_interest, 2)
 
     data['Balance'] = sum([v for k, v in data.items() if k.startswith('Q')]) + data['Balance']
-
-    if close_date:
-        data['Balance on Close'] = data['Balance']
 
     return data
 
