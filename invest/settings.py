@@ -29,8 +29,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 SECRET_KEY = secrets.token_urlsafe(50) #os.getenv('secret_key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", "True") == "True"
-DEVELOPMENT_MODE = os.getenv("DEVELOPMENT_MODE", "True") == "True"
+DEBUG = os.getenv("DEBUG", "False") == "True"
+DEVELOPMENT_MODE = os.getenv("DEVELOPMENT_MODE", "False") == "True"
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
