@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Allocate funds</title>
+    <style>
+    body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        background-color: #f7f7f7;
+        font-family: Arial, sans-serif;
+    }
+    .form-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        max-width: 1000px;
+        width: 100%;
+        margin-top: 20px;
+    }
+    form {
+        width: 300px;
+    }
+    form p {
+        margin-bottom: 15px;
+    }
+    form input, form select, form textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+    button[type="submit"] {
+        width: 100%;
+        padding: 10px;
+        background-color: #006dd1;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        box-sizing: border-box;
+        margin-top: 10px;
+    }
+    button[type="submit"]:hover {
+        background-color: #0056b3;
+    }
+    #additional-info {
+        width: 300px;
+        margin-top: 30px;
+        padding: 10px;
+        background-color: #eaeaea;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin-left: 20px;
+        transition: transform 0.3s ease-out;
+        transform: translateX(-100%);
+        opacity: 0;
+        display: none;
+    }
+    #additional-info.visible {
+        transform: translateX(0);
+        opacity: 1;
+        display: block;
+    }
+    .button-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        width: 100%;
+    }
+    .button-container button {
+        padding: 10px 30px;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        background-color: #006dd1;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .button-container button:hover {
+        background-color: #0056b3;
+    }
+    .success {
+        color: green;
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+    </style>
+</head>
+<body>
+  <h1>Allocate funds</h1>
+  {% if success %}
+    <div class="success">{{ success }}</div>
+  {% endif %}
+  <div class="form-container">
+    <form method="post" id="allocation-form">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div id="share-amount-warning" style="color: red; display: none;"></div>
+      <button type="submit">Save</button>
+    </form>
+    <div id="additional-info">
+      <!-- Content for additional info goes here -->
+    </div>
+  </div>
+  <div class="button-container">
+    <button class="back-button" onclick="location.href='{% url 'mortgage_app:loan_book' %}'">Back to Loan Book</button>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      var getPropertyInfoUrl = "{% url 'mortgage_app:get_property_info' %}";
+      var availableShare = 0;
+
+      // Function to filter and display only open properties
+      function updatePropertyOptions() {
+        var propertySelect = $('#id_property');
+        propertySelect.find('option').each(function() {
+          var propertyId = $(this).val();
+          if (propertyId) {
+            $.ajax({
+              url: getPropertyInfoUrl,
+              data: { 'property_id': propertyId },
+              dataType: 'json',
+              async: false,  // Make this synchronous to ensure proper ordering
+              success: function(data) {
+                if (data.closed) {
+                  $(this).hide();
+                } else {
+                  $(this).show();
+                }
+              }.bind(this),
+              error: function(xhr, status, error) {
+                console.error('Error fetching property info:', error);
+              }
+            });
+          }
+        });
+      }
+
+      // Call this function when the page loads
+      updatePropertyOptions();
+
+      $('#id_property').change(function() {
+        var propertyId = $(this).val();
+        if (propertyId) {
+          $.ajax({
+            url: getPropertyInfoUrl,
+            data: { 'property_id': propertyId },
+            dataType: 'json',
+            success: function(data) {
+              if (data.closed) {
+                alert("This property is closed and cannot be selected.");
+                $('#id_property').val('');  // Reset selection
+                $('#additional-info').removeClass('visible').empty();
+                return;
+              }
+
+              var additionalInfoHtml = '<p><strong>Address:</strong> ' + data.name + '</p>';
+              additionalInfoHtml += '<p><strong>Loan ID:</strong> ' + data.loan_id + '</p>';
+              additionalInfoHtml += '<p><strong>Available Share:</strong> ' + data.available_share + '</p>';
+              additionalInfoHtml += '<p><strong>Latest Shares:</strong></p>';
+              data.latest_shares.forEach(function(share) {
+                var dateObj = new Date(share.date);
+                var formattedDate = dateObj.toLocaleDateString();
+                additionalInfoHtml += '<p>' + share.fund_name + ' ' + share.share_amount + ' ' + formattedDate + '</p>';
+              });
+              additionalInfoHtml += '</p>';
+              $('#additional-info').html(additionalInfoHtml).addClass('visible');
+
+              availableShare = parseFloat(data.available_share);
+
+              $('#id_share_amount').on('input', function() {
+                var shareAmount = parseFloat($(this).val());
+                var warningElement = $('#share-amount-warning');
+
+                if (isNaN(shareAmount) || shareAmount <= availableShare) {
+                  warningElement.hide();
+                } else {
+                  warningElement.text('Warning: The share amount exceeds the available share.').show();
+                }
+              });
+
+              $('#allocation-form').off('submit').submit(function(e) {
+                var shareAmount = parseFloat($('#id_share_amount').val());
+                if (shareAmount > availableShare) {
+                  e.preventDefault();
+                  alert('The share amount exceeds the available share. Please adjust the amount.');
+                }
+              });
+            },
+            error: function(xhr, status, error) {
+              console.error('Error fetching property info:', error);
+            }
+          });
+        } else {
+          $('#additional-info').removeClass('visible').empty();
+          availableShare = 0;
+          $('#share-amount-warning').hide();
+
+          $('#id_share_amount').off('input');
+          $('#allocation-form').off('submit');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

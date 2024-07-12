@@ -54,7 +54,7 @@
         <p><strong>Amount $:</strong> {{ client.investment_amount }}</p>
         <p><strong>Deposit Type:</strong> {{ client.investment_type }}</p>
         <!-- Add more fields as needed -->
-        <button class="back-button" onclick="location.href='{% url 'list_clients' %}'">Back to Clients List</button>
+        <button class="back-button" onclick="location.href='{% url 'invest_app:list_clients' %}'">Back to Clients List</button>
         {% if not client.contract_end_date %}
             <button class="close-contract-button" id="closeContractBtn">Close Contract</button>
         {% else %}
@@ -80,7 +80,7 @@
                         if (selectedDate) {
                             // Send AJAX request to close the contract
                             $.ajax({
-                                url: "{% url 'close_contract' client.id %}",
+                                url: "{% url 'invest_app:close_contract' client.id %}",
                                 type: "POST",
                                 data: {
                                     'contract_end_date': selectedDate,

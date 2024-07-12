@@ -1,0 +1,77 @@
+<!-- /templates/mortgage_app/home.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mortgage App Home</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f7f7f7;
+        }
+        .logo-container {
+            margin-bottom: 50px; /* Adjust this value to increase/decrease space */
+        }
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .button-container button {
+            margin: 10px;
+            padding: 15px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #006dd1;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 200px;
+        }
+        .button-container button:hover {
+            background-color: #0056b3;
+        }
+        .button-container .property-button {
+            background-color: #28a745;
+        }
+        .button-container .property-button:hover {
+            background-color: #218838;
+        }
+        .button-container .shares-button {
+            background-color: #28a745;
+        }
+        .button-container .shares-button:hover {
+            background-color: #218838;
+        }
+        .button-container .choose-app {
+            background-color: #006400;
+        }
+        .button-container .choose-app:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Include the static files in the template -->
+    <div class="logo-container">
+        {% load static %}
+        <img src="{% static 'images/faes_co_logo.png' %}" alt="Logo" style="width: 200px; height: auto;">
+    </div>
+    <div class="button-container">
+        <button onclick="location.href='{% url 'mortgage_app:property_add' %}'">Add Property</button>
+        <button onclick="location.href='{% url 'mortgage_app:fund_add' %}'">Add fund</button>
+        <button onclick="location.href='{% url 'mortgage_app:property_fund_share_add' %}'">Add fund share</button>
+        <button class="property-button" onclick="location.href='{% url 'mortgage_app:property_list' %}'">List Property</button>
+        <button class="shares-button" onclick="location.href='{% url 'mortgage_app:fund_shares' %}'">List Shares</button>
+        <button class="back-button" onclick="location.href='{% url 'mortgage_app:home' %}'">Back to Home</button>
+        <button class="choose-app" onclick="location.href='{% url 'choose_app' %}'">Change App</button>
+    </div>
+</body>
+</html>

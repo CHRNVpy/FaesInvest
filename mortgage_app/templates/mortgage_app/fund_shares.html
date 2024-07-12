@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        .shares-history {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+            white-space: nowrap;
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .back-button, .close-contract-button {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #006dd1;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover, .close-contract-button:hover {
+            background-color: #0056b3;
+        }
+        .save-button {
+        margin-top: 10px;
+        margin-bottom: 20px;
+        padding: 10px;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        background-color: #4CAF50;  /* Green color for distinction */
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        }
+        .save-button:hover {
+            background-color: #45a049;
+        }
+        .form-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        }
+
+        .filter-form {
+            margin-right: 15px;
+        }
+
+        .select-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .select-wrapper::after {
+            content: "\25BC";
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding: 10px 30px 10px 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+            cursor: pointer;
+            width: 200px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #006dd1;
+            box-shadow: 0 0 0 2px rgba(0,109,209,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="shares-history">
+            <h2>Shares by fund</h2>
+            <form method="GET" class="filter-form">
+                <label for="fund">Choose Fund:</label>
+                <select name="fund" id="fund" onchange="this.form.submit()">
+                    <option value="">All</option>
+                    {% for fund in funds %}
+                        <option value="{{ fund.name }}" {% if fund.name == selected_fund_name %}selected{% endif %}>{{ fund.name }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+            <button id="saveToGoogleSheets" class="save-button">Save to Google Sheets</button>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            {% for header in headers %}
+                                <th>{{ header }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rows %}
+                            <tr>
+                                {% for cell in row %}
+                                    <td>{{ cell }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <button class="back-button" onclick="location.href='{% url 'mortgage_app:loan_book' %}'">Back to Loan Book</button>
+    </div>
+    <script>
+        document.getElementById('saveToGoogleSheets').addEventListener('click', function() {
+            const selectedFund = document.getElementById('fund').value;
+            fetch('{% url "mortgage_app:save_to_google_sheets" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    fund: selectedFund
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Data saved to Google Sheets successfully!');
+                } else {
+                    alert('Error saving data to Google Sheets: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while saving data to Google Sheets.');
+            });
+        });
+    </script>
+</body>
+</html>

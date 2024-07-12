@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List of Clients</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 20px;
+        }
+        .client-list {
+            width: auto;
+            margin: auto;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        .client-item {
+            margin-bottom: 10px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            transition: box-shadow 0.3s ease;
+        }
+        .client-item:hover {
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .client-link {
+            text-decoration: none;
+            color: #333;
+            display: flex;
+            justify-content: left;
+            align-items: center;
+        }
+        .client-id {
+            font-weight: bold;
+            color: #006dd1;
+            margin-right: 10px;
+        }
+        .client-name {
+            font-weight: bold;
+            flex-grow: 1;
+        }
+        .back-button {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #006dd1;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+        /* Toggle switch styles */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        #filterCheckbox {
+            display: none;
+        }
+        #filterCheckbox + label {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            background-color: #ccc;
+            border-radius: 34px;
+            transition: background-color 0.4s;
+            cursor: pointer;
+        }
+        #filterCheckbox + label:after {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.4s;
+        }
+        #filterCheckbox:checked + label {
+            background-color: #006dd1;
+        }
+        #filterCheckbox:checked + label:after {
+            transform: translateX(26px);
+        }
+        .toggle-label {
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+    </style>
+    <script>
+        function toggleFilter() {
+            const filterCheckbox = document.getElementById('filterCheckbox');
+            const filter = filterCheckbox.checked ? 'true' : 'false';
+            const url = new URL(window.location.href);
+            url.searchParams.set('filter', filter);
+            window.location.href = url.toString();
+        }
+    </script>
+</head>
+<body>
+    <div class="client-list">
+        <h2>Clients</h2>
+        <div class="toggle-container">
+            <input type="checkbox" id="filterCheckbox" onclick="toggleFilter()" {% if filter_contract_end_date %}checked{% endif %}>
+            <label for="filterCheckbox"></label>
+            <span class="toggle-label">Show only clients with closed contract</span>
+        </div>
+        {% if clients %}
+            {% for client in clients %}
+                <div class="client-item">
+                    <a href="{% url 'invest_app:client_detail' client.id %}" class="client-link">
+                        <span class="client-id">{{ client.investor_id }}</span>
+                        <span class="client-name">{{ client.first_name }} {{ client.last_name }}</span>
+                    </a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No clients found.</p>
+        {% endif %}
+        <button class="back-button" onclick="location.href='{% url 'invest_app:home' %}'">Back to Home</button>
+    </div>
+</body>
+</html>
+

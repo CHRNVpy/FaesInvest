@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton+SC&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+    <title>Choose App</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f7f7f7;
+        }
+        .logo-container {
+            margin-bottom: 50px; /* Adjust this value to increase/decrease space */
+        }
+        .container {
+            text-align: center;
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .buttons a {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 60px; /* Set desired height */
+            margin: 5px;
+            font-size: 24px;
+            text-decoration: none;
+            color: #fff;
+            background-color: #006400;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 200px;
+            font-family: "Ubuntu", sans-serif;
+            font-weight: 700;
+            font-style: normal;
+        }
+        .buttons a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        {% load static %}
+        <img src="{% static 'images/faes_co_logo.png' %}" alt="Logo" style="width: 200px; height: auto;">
+    </div>
+    <div class="container">
+        <div class="buttons">
+            <a href="{% url 'invest_app:home' %}">Invest App</a>
+            <a href="{% url 'mortgage_app:home' %}">Mortgage App</a>
+        </div>
+    </div>
+</body>
+</html>

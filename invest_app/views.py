@@ -15,7 +15,7 @@ from .google_sheet import update_spreadsheet, get_investors_table
 
 @login_required
 def home(request):
-    return render(request, 'home.html')
+    return render(request, 'invest_app/home.html')
 
 
 @csrf_exempt
@@ -45,7 +45,7 @@ def add_client(request):
             errors.append("Investment amount must be a number.")
 
         if errors:
-            return render(request, 'add_client.html', {
+            return render(request, 'invest_app/add_client.html', {
                 'errors': errors,
                 'investor_id': investor_id,
                 'first_name': first_name,
@@ -68,7 +68,7 @@ def add_client(request):
             investment_type=investment_type,
         )
 
-        return render(request, 'add_client.html', {
+        return render(request, 'invest_app/add_client.html', {
             'success': 'Client added successfully!',
             'investor_id': '',
             'first_name': '',
@@ -80,7 +80,7 @@ def add_client(request):
             'investment_type': '',
         })
 
-    return render(request, 'add_client.html')
+    return render(request, 'invest_app/add_client.html')
 
 
 @login_required
@@ -92,17 +92,16 @@ def list_clients(request):
     else:
         clients = Client.objects.all()
 
-    return render(request, 'list_clients.html', {
+    return render(request, 'invest_app/list_clients.html', {
         'clients': clients,
         'filter_contract_end_date': filter_contract_end_date,
     })
 
 
-# views.py
 @login_required()
 def client_detail(request, client_id):
     client = Client.objects.get(id=client_id)
-    return render(request, 'client_detail.html', {'client': client})
+    return render(request, 'invest_app/client_detail.html', {'client': client})
 
 
 @csrf_exempt
@@ -133,7 +132,7 @@ def show_table(request):
         "headers": headers,
         "rows": rows,
     }
-    return render(request, 'show_table.html', context)
+    return render(request, 'invest_app/show_table.html', context)
 
 
 @login_required()
@@ -141,4 +140,4 @@ def show_google_table(request):
     clients = Client.objects.all()
     update_spreadsheet(clients)
 
-    return render(request, 'show_google_table.html')
+    return render(request, 'invest_app/show_google_table.html')

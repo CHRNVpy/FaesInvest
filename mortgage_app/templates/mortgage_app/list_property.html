@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List of property</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 20px;
+        }
+        .properties-list {
+            width: auto;
+            margin: auto;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        .property-item {
+            margin-bottom: 5px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .back-button {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #006dd1;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+        .form-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        }
+
+        .filter-form {
+            margin-right: 15px;
+        }
+
+        .select-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .select-wrapper::after {
+            content: "\25BC";
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding: 10px 30px 10px 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+            cursor: pointer;
+            width: 200px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #006dd1;
+            box-shadow: 0 0 0 2px rgba(0,109,209,0.2);
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 200px;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #006dd1;
+            box-shadow: 0 0 0 2px rgba(0,109,209,0.2);
+        }
+
+        .search-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #006dd1;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .search-button:hover {
+            background-color: #0056b3;
+        }
+        .property-item {
+            margin-bottom: 10px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            transition: box-shadow 0.3s ease;
+        }
+        .property-item:hover {
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .property-link {
+            text-decoration: none;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .property-id {
+            font-weight: bold;
+            color: #006dd1;
+            margin-right: 10px;
+        }
+        .property-name {
+            font-weight: bold;
+            flex-grow: 1;
+        }
+        .property-cost {
+            font-weight: bold;
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="properties-list">
+        <h2>Properties</h2>
+        <form method="GET" class="filter-form">
+            <label for="fund_name">Filter by Fund:</label>
+            <select name="fund_name" id="fund_name" onchange="this.form.submit()">
+                <option value="">All</option> <!-- Option to list all properties -->
+                {% for fund in funds %}
+                    <option value="{{ fund.name }}" {% if fund.name == selected_fund_name %}selected{% endif %}>{{ fund.name }}</option>
+                {% endfor %}
+            </select>
+            <label for="search_property_id">Search by Property ID:</label>
+            <input type="text" name="search_property_id" id="search_property_id" value="{{ search_property_id }}" placeholder="Enter Property ID">
+            <button class="search-button" type="submit">Search</button>
+        </form>
+        {% if properties %}
+            {% for item in properties %}
+                <div class="property-item">
+                    <a href="{% url 'mortgage_app:property_detail' item.loan_id %}" class="property-link">
+                        <span class="property-id">ID: {{ item.loan_id }}</span>
+                        <span class="property-name">{{ item.name }}</span>
+                        <span class="property-cost">$: {{ item.cost }}</span>
+                    </a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No properties found.</p>
+        {% endif %}
+        <button class="back-button" onclick="location.href='{% url 'mortgage_app:loan_book' %}'">Back to Loan Book</button>
+    </div>
+</body>
+</html>
+
+

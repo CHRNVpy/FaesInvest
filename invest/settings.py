@@ -29,8 +29,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 SECRET_KEY = secrets.token_urlsafe(50) #os.getenv('secret_key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", "False") == "True"
-DEVELOPMENT_MODE = os.getenv("DEVELOPMENT_MODE", "False") == "True"
+DEBUG = os.getenv("DEBUG", "True") == "True"
+DEVELOPMENT_MODE = os.getenv("DEVELOPMENT_MODE", "True") == "True"
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
@@ -43,7 +43,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'core',
     'invest_app',
+    'mortgage_app',
 ]
 
 MIDDLEWARE = [
@@ -131,7 +133,7 @@ AUTHENTICATION_BACKENDS = [
 LOGIN_URL = '/login/'
 
 # Redirect URL after login
-LOGIN_REDIRECT_URL = '/home/'
+LOGIN_REDIRECT_URL = '/choose-app/'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/

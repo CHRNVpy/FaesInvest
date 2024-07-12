@@ -1,0 +1,101 @@
+<!-- myapp/templates/myapp/add_client.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Client</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f7f7f7;
+        }
+        .form-container {
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+        .form-container input, .form-container select {
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 14px;
+            width: 100%; /* Ensure the width is 100% of the container */
+            box-sizing: border-box; /* Include padding in the element's total width and height */
+        }
+        .form-container button {
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #006dd1;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .form-container button:hover {
+            background-color: #0056b3;
+        }
+        .back-button {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #0056b3;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover {
+            background-color: #6c757d;
+        }
+        .error {
+            color: red;
+            font-size: 12px;
+        }
+        .success {
+            color: green;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <form method="post">
+            {% csrf_token %}
+            {% if errors %}
+                <div class="error">
+                    <ul>
+                        {% for error in errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            {% if success %}
+                <div class="success">{{ success }}</div>
+            {% endif %}
+            <input type="text" name="investor_id" placeholder="Investor ID" value="{{ investor_id }}" required>
+            <input type="text" name="first_name" placeholder="First Name" value="{{ first_name }}" required>
+            <input type="text" name="last_name" placeholder="Last Name" value="{{ last_name }}" required>
+            <input type="text" name="company_name" placeholder="Company Name" value="{{ company_name }}" required>
+            <input type="date" name="investment_date" placeholder="Investment Date" value="{{ investment_date }}" required>
+            <input type="text" name="investment_rate" placeholder="Investment Rate %" value="{{ investment_rate }}" required>
+            <input type="text" name="investment_amount" placeholder="Investment Amount $" value="{{ investment_amount }}" required>
+            <select name="investment_type" required>
+                <option value="" disabled selected>Select Investment Type</option>
+                <option value="Direct Deposit" {% if investment_type == "Direct Deposit" %}selected{% endif %}>Direct Deposit</option>
+                <option value="Reinvestment" {% if investment_type == "Reinvestment" %}selected{% endif %}>Reinvestment</option>
+            </select>
+            <button type="submit">Submit</button>
+        </form>
+        <button class="back-button" onclick="location.href='{% url 'invest_app:home' %}'">Back to Home</button>
+    </div>
+</body>
+</html>
