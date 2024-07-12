@@ -247,48 +247,25 @@ def list_shares(request):
         'selected_fund_name': selected_fund_name,
     }
 
-    dataframes = []
-    for fund in funds:
-        properties = Property.objects.filter(propertyfundshare__fund__name=fund.name)
-        shares = []
-        for property in properties:
-            all_shares = PropertyFundShare.objects.filter(fund=fund, property=property) \
-                .annotate(loan_id=F('property__loan_id')) \
-                .annotate(closed=F('property__closed'))
+    if funds:
+        dataframes = []
+        for fund in funds:
+            properties = Property.objects.filter(propertyfundshare__fund__name=fund.name)
+            shares = []
+            for property in properties:
+                all_shares = PropertyFundShare.objects.filter(fund=fund, property=property) \
+                    .annotate(loan_id=F('property__loan_id')) \
+                    .annotate(closed=F('property__closed'))
 
-            shares.extend(list(all_shares))
+                shares.extend(list(all_shares))
 
-        df = create_dataframe(properties)
-        update_allocations(df, shares)
-        df['fund_name'] = fund.name
-        dataframes.append(df)
+            df = create_dataframe(properties)
+            update_allocations(df, shares)
+            df['fund_name'] = fund.name
+            dataframes.append(df)
 
-    merged_df = merge_dataframes(dataframes)
-    df_json = merged_df.to_json(index=False)
-    json_data = json.loads(df_json)
-
-    headers = list(json_data.keys())
-    rows = zip(*[value.values() for value in json_data.values()])
-
-    context['headers'] = headers
-    context['rows'] = rows
-
-    if selected_fund_name:
-        fund = get_object_or_404(Fund, name=selected_fund_name)
-        properties = Property.objects.filter(propertyfundshare__fund__name=selected_fund_name)
-        shares = []
-        for property in properties:
-            all_shares = PropertyFundShare.objects.filter(fund=fund, property=property) \
-                .annotate(loan_id=F('property__loan_id')) \
-                .annotate(closed=F('property__closed'))
-
-            shares.extend(list(all_shares))
-
-        df = create_dataframe(properties)
-        update_allocations(df, shares)
-        df.rename(columns={'loan_id': 'Loan ID', 'property_name': 'Property Name', 'cost': 'Cost'}, inplace=True)
-
-        df_json = df.to_json(index=False)
+        merged_df = merge_dataframes(dataframes)
+        df_json = merged_df.to_json(index=False)
         json_data = json.loads(df_json)
 
         headers = list(json_data.keys())
@@ -296,7 +273,31 @@ def list_shares(request):
 
         context['headers'] = headers
         context['rows'] = rows
-        return render(request, 'mortgage_app/fund_shares.html', context)
+
+        if selected_fund_name:
+            fund = get_object_or_404(Fund, name=selected_fund_name)
+            properties = Property.objects.filter(propertyfundshare__fund__name=selected_fund_name)
+            shares = []
+            for property in properties:
+                all_shares = PropertyFundShare.objects.filter(fund=fund, property=property) \
+                    .annotate(loan_id=F('property__loan_id')) \
+                    .annotate(closed=F('property__closed'))
+
+                shares.extend(list(all_shares))
+
+            df = create_dataframe(properties)
+            update_allocations(df, shares)
+            df.rename(columns={'loan_id': 'Loan ID', 'property_name': 'Property Name', 'cost': 'Cost'}, inplace=True)
+
+            df_json = df.to_json(index=False)
+            json_data = json.loads(df_json)
+
+            headers = list(json_data.keys())
+            rows = zip(*[value.values() for value in json_data.values()])
+
+            context['headers'] = headers
+            context['rows'] = rows
+            return render(request, 'mortgage_app/fund_shares.html', context)
 
     return render(request, 'mortgage_app/fund_shares.html', context)
 
