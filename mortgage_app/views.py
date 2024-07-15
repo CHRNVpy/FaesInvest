@@ -59,6 +59,14 @@ def add_property(request):
             created=date
         )
 
+        # Fetch the newly created Property object based on loan_id
+        property_instance = Property.objects.get(loan_id=loan_id)
+
+        # Create a PropertyCostHistory object associated with the newly created Property
+        PropertyCostHistory.objects.create(
+            property=property_instance,
+            cost=cost
+        )
         return render(request, 'mortgage_app/add_property.html', {
             'success': 'Property added successfully!',
             'loan_id': '',
