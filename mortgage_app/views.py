@@ -2,7 +2,7 @@ import datetime
 import json
 
 from django.contrib.auth.decorators import login_required
-from django.db.models import OuterRef, Subquery, F
+from django.db.models import OuterRef, Subquery, F, Max
 from django.forms import model_to_dict
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -12,7 +12,7 @@ from django.views.decorators.http import require_POST
 
 from .dataframe import create_dataframe, update_allocations, merge_dataframes, update_spreadsheet
 from .forms import PropertyForm, PropertyFundShareForm, FundForm
-from .models import Property, Fund, PropertyFundShare
+from .models import Property, Fund, PropertyFundShare, PropertyCostHistory
 
 
 @login_required
@@ -85,7 +85,20 @@ def list_property(request):
             '-loan_id').distinct()
     else:
         # Fetch all properties if no fund name or property ID is selected
-        properties = Property.objects.all()
+        # properties = Property.objects.all().distinct('loan_id')
+        # Annotate each Property with the maximum created date for its loan_id
+        max_created_subquery = Property.objects.filter(
+            loan_id=OuterRef('loan_id')
+        ).values('loan_id').annotate(
+            max_created=Max('created')
+        ).values('max_created')
+
+        # Filter the properties to keep only those with the maximum created date for their loan_id
+        properties = Property.objects.annotate(
+            max_created=Subquery(max_created_subquery)
+        ).filter(
+            created=F('max_created')
+        )
 
     return render(request, 'mortgage_app/list_property.html', {
         'properties': properties,
@@ -100,7 +113,7 @@ def property_detail(request, loan_id):
     property = get_object_or_404(Property, loan_id=loan_id)
     funds = Fund.objects.all()
     selected_fund_name = request.GET.get('fund')
-    print(selected_fund_name)
+    history = PropertyCostHistory.objects.filter(property=property)
 
     latest_date_subquery = PropertyFundShare.objects.filter(
         property=property,
@@ -121,6 +134,8 @@ def property_detail(request, loan_id):
         'latest_shares': latest_shares,
         'available_share': available_share,
         'current_shares': latest_shares,
+        'history': history,
+        # 'csrf_token': request.COOKIES['csrftoken'],
     }
 
     if selected_fund_name:
@@ -155,35 +170,52 @@ def close_contract(request, loan_id):
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
 
+@csrf_exempt
+def update_cost(request, loan_id):
+    if request.method == 'POST':
+        new_cost = request.POST.get('new_cost')
+        if new_cost:
+            try:
+                new_cost = float(new_cost)
+                print(new_cost)
+            except ValueError:
+                return JsonResponse({'status': 'error', 'message': 'Invalid cost value.'})
+
+            property = get_object_or_404(Property, loan_id=loan_id)
+            property.cost = new_cost
+            PropertyCostHistory.objects.create(property=property, cost=new_cost)
+            property.save()
+            return JsonResponse({'status': 'success', 'message': 'Cost updated successfully.'})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'No cost provided.'})
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
+
+
 def add_fund(request):
     if request.method == 'POST':
         name = request.POST.get('name')
-        rate = request.POST.get('rate')
 
         errors = []
 
-        # Validate cost
+        # Validate name
         try:
-            cost = float(rate)
+            name = str(name)
         except ValueError:
-            errors.append("Rate must be a number.")
+            errors.append("Rate must be a string.")
 
         if errors:
             return render(request, 'mortgage_app/add_fund.html', {
                 'errors': errors,
                 'name': name,
-                'rate': rate,
             })
 
         Fund.objects.create(
             name=name,
-            rate=rate,
         )
 
         return render(request, 'mortgage_app/add_fund.html', {
             'success': 'Fund added successfully!',
             'name': '',
-            'rate': '',
         })
 
     return render(request, 'mortgage_app/add_fund.html')
@@ -231,6 +263,7 @@ def get_property_info(request):
                          'cost': property.cost,
                          'available_share': available_share,
                          'latest_shares': latest_shares_json,
+                         'created': property.created,
                          'closed': property.closed}
         return JsonResponse(property_info)
     else:

@@ -82,7 +82,6 @@
                 <div class="success">{{ success }}</div>
             {% endif %}
             <input type="text" name="name" placeholder="Name" value="{{ name }}" required>
-            <input type="text" name="rate" placeholder="Rate" value="{{ rate }}" required>
             <button type="submit">Save</button>
         </form>
         <button class="back-button" onclick="location.href='{% url 'mortgage_app:property_fund_share_add' %}'">Allocate funds</button>

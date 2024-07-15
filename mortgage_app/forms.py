@@ -11,13 +11,13 @@ class PropertyForm(forms.ModelForm):
 class FundForm(forms.ModelForm):
     class Meta:
         model = Fund
-        fields = ['name', 'rate']
+        fields = ['name']
 
 
 class PropertyFundShareForm(forms.ModelForm):
     class Meta:
         model = PropertyFundShare
-        fields = ['property', 'fund', 'share_amount', 'date_of_change']
+        fields = ['property', 'fund', 'share_amount', 'share_rate', 'date_of_change']
         widgets = {
             'date_of_change': forms.DateInput(attrs={'type': 'date'})
         }

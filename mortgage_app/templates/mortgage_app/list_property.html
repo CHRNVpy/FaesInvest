@@ -159,7 +159,7 @@
             {% for item in properties %}
                 <div class="property-item">
                     <a href="{% url 'mortgage_app:property_detail' item.loan_id %}" class="property-link">
-                        <span class="property-id">ID: {{ item.loan_id }}</span>
+                        <span class="property-id">{{ item.loan_id }}</span>
                         <span class="property-name">{{ item.name }}</span>
                         <span class="property-cost">$: {{ item.cost }}</span>
                     </a>

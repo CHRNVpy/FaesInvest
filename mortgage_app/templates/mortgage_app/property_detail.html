@@ -22,7 +22,7 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             padding: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         .shares-history {
             width: 100%;
@@ -30,7 +30,57 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             padding: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
+        }
+        .chart-wrapper {
+            width: 100%;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 10px;
+        }
+        .form-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        }
+
+        .filter-form {
+            margin-right: 15px;
+        }
+
+        .select-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .select-wrapper::after {
+            content: "\25BC";
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding: 10px 30px 10px 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+            cursor: pointer;
+            width: 200px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #006dd1;
+            box-shadow: 0 0 0 2px rgba(0,109,209,0.2);
         }
         table {
             width: 100%;
@@ -52,7 +102,7 @@
         tr:hover {
             background-color: #f1f1f1;
         }
-        .back-button, .close-contract-button {
+        .back-button, .close-contract-button, .update-cost-button {
             margin-top: 20px;
             padding: 10px;
             font-size: 16px;
@@ -63,7 +113,7 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
-        .back-button:hover, .close-contract-button:hover {
+        .back-button:hover, .close-contract-button:hover, .update-cost-button:hover {
             background-color: #0056b3;
         }
     </style>
@@ -82,6 +132,7 @@
             <!-- Add more fields as needed -->
             {% if not property.closed %}
                 <button class="close-contract-button" id="closeContractBtn">End Loan</button>
+                <button class="update-cost-button" id="updateCostBtn">Update Cost</button> <!-- New Update Cost Button -->
             {% endif %}
         </div>
 
@@ -92,7 +143,7 @@
             {% endfor %}
         </div>
         <div class="shares-history">
-            <h2>History</h2>
+            <h2>Shares History</h2>
             <form method="GET" class="filter-form">
                 <label for="fund">Choose Fund:</label>
                 <select name="fund" id="fund" onchange="this.form.submit()">
@@ -121,6 +172,10 @@
             </tbody>
             </table>
         </div>
+        <div class="chart-wrapper">
+          <h2>Property Cost History</h2>
+          <div id="costHistoryChart" style="width: 900px; height: 500px; margin: 0 auto;"></div>
+        </div>
     </div>
     <button class="back-button" onclick="location.href='{% url 'mortgage_app:property_list' %}'">Back to Property List</button>
 
@@ -129,8 +184,15 @@
         <p>Choose a date:</p>
         <input type="text" id="contractEndDate" name="contract_end_date">
     </div>
+    <div id="updateCostDialog" title="Update Cost" style="display:none;">
+        <p>Enter new cost:</p>
+        <input type="text" id="newCost" name="new_cost">
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
     <script>
         $(document).ready(function() {
             $("#closeContractBtn").click(function() {
@@ -173,6 +235,86 @@
                     dateFormat: "yy-mm-dd"
                 });
             });
+            $("#updateCostBtn").click(function() {
+                $("#updateCostDialog").dialog({
+                    modal: true,
+                    buttons: {
+                        "Update Cost": function() {
+                            var newCost = $("#newCost").val();
+                            if (newCost) {
+                                // Send AJAX request to update the cost
+                                $.ajax({
+                                    url: "{% url 'mortgage_app:update_cost' property.loan_id %}",
+                                    type: "POST",
+                                    data: {
+                                        'new_cost': newCost,
+                                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                                    },
+                                    success: function(response) {
+                                        if (response.status === 'success') {
+                                            location.reload(); // Reload the page to see the updated cost
+                                        } else {
+                                            alert("Error: " + response.message);
+                                        }
+                                    },
+                                    error: function(xhr, status, error) {
+                                        alert("An error occurred: " + error);
+                                    }
+                                });
+                                $(this).dialog("close");
+                            } else {
+                                alert("Please enter a new cost.");
+                            }
+                        },
+                        Cancel: function() {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+            });
+
+            // Load the Visualization API and the corechart package.
+            google.charts.load('current', {'packages':['corechart']});
+
+            // Set a callback to run when the Google Visualization API is loaded.
+            google.charts.setOnLoadCallback(drawChart);
+
+            function drawChart() {
+                const costHistoryData = [['Date', 'Cost']];
+
+                {% for record in history %}
+                    var dateStr = "{{ record.created|date:'Y-m-d' }}";
+                    var cost = parseFloat("{{ record.cost }}");
+                    if (!isNaN(cost)) {
+                        costHistoryData.push([new Date(dateStr), cost]);
+                    } else {
+                        console.error('Invalid cost:', "{{ record.cost }}");
+                    }
+                {% endfor %}
+
+                console.log('Data:', costHistoryData);
+
+                // Create the data table.
+                var data = google.visualization.arrayToDataTable(costHistoryData);
+
+                // Set chart options
+                var options = {
+                    title: 'Property Cost Over Time',
+                    curveType: 'function',
+                    legend: { position: 'bottom' },
+                    hAxis: {
+                        title: 'Date',
+                        format: 'MMM yyyy'
+                    },
+                    vAxis: {
+                        title: 'Cost ($)'
+                    }
+                };
+
+                // Instantiate and draw our chart, passing in some options.
+                var chart = new google.visualization.LineChart(document.getElementById('costHistoryChart'));
+                chart.draw(data, options);
+            }
         });
     </script>
 </body>
