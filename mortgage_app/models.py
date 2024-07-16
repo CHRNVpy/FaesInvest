@@ -11,6 +11,10 @@ class Property(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = "Property"
+        verbose_name_plural = "Properties"
+
 
 class Fund(models.Model):
     name = models.CharField(max_length=255)
@@ -40,3 +44,7 @@ class PropertyCostHistory(models.Model):
 
     def __str__(self):
         return f"{self.property.name} - ${self.cost} on {self.created}"
+
+    class Meta:
+        verbose_name = "Property cost history"
+        verbose_name_plural = "Property cost histories"
