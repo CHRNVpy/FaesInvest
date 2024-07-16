@@ -31,9 +31,12 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             padding: 20px;
             margin-bottom: 10px;
-            overflow-x: auto;
-            max-height: 500px;
             overflow-y: auto;
+            max-height: 500px;
+        }
+
+        .table-container {
+            overflow-x: auto;
         }
         .chart-wrapper {
             width: 100%;
@@ -156,24 +159,26 @@
                     {% endfor %}
                 </select>
             </form>
-            <table id="table">
-            <thead>
-                <tr>
-                    {% for header in headers %}
-                        <th>{{ header }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in rows %}
+            <div class="table-container">
+                <table>
+                <thead>
                     <tr>
-                        {% for cell in row %}
-                            <td>{{ cell }}</td>
+                        {% for header in headers %}
+                            <th>{{ header }}</th>
                         {% endfor %}
                     </tr>
-                {% endfor %}
-            </tbody>
-            </table>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                        <tr>
+                            {% for cell in row %}
+                                <td>{{ cell }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
+            </div>
         </div>
         <div class="chart-wrapper">
           <h2>Property Cost History</h2>
