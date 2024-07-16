@@ -26,7 +26,7 @@ def create_dataframe(properties: List[Property]) -> pd.DataFrame:
         now = datetime.datetime.now()
         start_date = prop.created
         end_date = prop.closed if prop.closed else now
-        months = pd.date_range(start=start_date, end=end_date, freq='ME').strftime('%b-%y').tolist()
+        months = pd.date_range(start=start_date.replace(day=1), end=end_date, freq='MS').strftime('%b-%y').tolist()
         all_months.update(months)
 
     all_months = sorted(list(all_months), key=lambda x: datetime.datetime.strptime(x, '%b-%y'))
@@ -40,7 +40,7 @@ def create_dataframe(properties: List[Property]) -> pd.DataFrame:
         now = datetime.datetime.now()
         start_date = prop.created
         end_date = prop.closed if prop.closed else now
-        months = pd.date_range(start=start_date, end=end_date, freq='ME').strftime('%b-%y').tolist()
+        months = pd.date_range(start=start_date.replace(day=1), end=end_date, freq='MS').strftime('%b-%y').tolist()
 
         # Initialize all allocations to initial_allocation
         property_data = [prop.loan_id, prop.name, prop.cost] + [initial_allocation] * len(all_months)

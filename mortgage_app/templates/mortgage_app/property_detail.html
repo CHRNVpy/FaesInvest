@@ -150,7 +150,7 @@
             <form method="GET" class="filter-form">
                 <label for="fund">Choose Fund:</label>
                 <select name="fund" id="fund" onchange="this.form.submit()">
-                    <option value="">None</option> <!-- Option to list all properties -->
+                    <option value="">All</option> <!-- Option to list all properties -->
                     {% for fund in funds %}
                         <option value="{{ fund.name }}" {% if fund.name == selected_fund_name %}selected{% endif %}>{{ fund.name }}</option>
                     {% endfor %}
@@ -184,13 +184,13 @@
 
     <!-- Dialog box for selecting contract end date -->
     <div id="dialog" title="Select Contract End Date" style="display:none;">
-        <p>Choose a date:</p>
+        <p>Choose a date (mm/dd/yy):</p>
         <input type="text" id="contractEndDate" name="contract_end_date">
     </div>
     <div id="updateCostDialog" title="Update Cost" style="display:none;">
         <p>Enter new cost:</p>
         <input type="text" id="newCost" name="new_cost">
-        <p>Enter date:</p>
+        <p>Enter date (mm/dd/yy):</p>
         <input type="text" id="newCostDate" name="new_cost_date">
     </div>
 
@@ -237,12 +237,12 @@
                     }
                 });
                 $("#contractEndDate").datepicker({
-                    dateFormat: "yy-mm-dd"
+                    dateFormat: "mm/dd/yy"
                 });
             });
             
             $("#newCostDate").datepicker({
-                dateFormat: "yy-mm-dd" // Format the date as needed
+                dateFormat: "mm/dd/yy" // Format the date as needed
             });
 
             $("#updateCostBtn").click(function() {

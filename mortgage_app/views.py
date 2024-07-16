@@ -147,20 +147,57 @@ def property_detail(request, loan_id):
         # 'csrf_token': request.COOKIES['csrftoken'],
     }
 
-    if selected_fund_name:
-        fund = get_object_or_404(Fund, name=selected_fund_name)
-        all_shares = PropertyFundShare.objects.filter(fund=fund, property=property) \
-            .annotate(loan_id=F('property__loan_id')) \
-            .annotate(closed=F('property__closed'))
-        df = create_dataframe([property])
-        update_allocations(df, all_shares)
-        df_json = df.to_json(index=False)
+    if funds:
+        dataframes = []
+        for fund in funds:
+            properties = Property.objects.filter(propertyfundshare__fund__name=fund.name)
+            shares = []
+            for property in properties:
+                all_shares = PropertyFundShare.objects.filter(fund=fund, property=property) \
+                    .annotate(loan_id=F('property__loan_id')) \
+                    .annotate(closed=F('property__closed'))
+
+                shares.extend(list(all_shares))
+
+            df = create_dataframe(properties)
+            update_allocations(df, shares)
+            df['fund_name'] = fund.name
+            dataframes.append(df)
+
+        merged_df = merge_dataframes(dataframes)
+        df_json = merged_df.to_json(index=False)
         json_data = json.loads(df_json)
+
         headers = list(json_data.keys())
         rows = zip(*[value.values() for value in json_data.values()])
+
         context['headers'] = headers
         context['rows'] = rows
-        return render(request, 'mortgage_app/property_detail.html', context)
+
+        if selected_fund_name:
+            fund = get_object_or_404(Fund, name=selected_fund_name)
+            properties = Property.objects.filter(propertyfundshare__fund__name=selected_fund_name)
+            shares = []
+            for property in properties:
+                all_shares = PropertyFundShare.objects.filter(fund=fund, property=property) \
+                    .annotate(loan_id=F('property__loan_id')) \
+                    .annotate(closed=F('property__closed'))
+
+                shares.extend(list(all_shares))
+
+            df = create_dataframe(properties)
+            update_allocations(df, shares)
+            df.rename(columns={'loan_id': 'Loan ID', 'property_name': 'Property Name', 'cost': 'Cost'}, inplace=True)
+
+            df_json = df.to_json(index=False)
+            json_data = json.loads(df_json)
+
+            headers = list(json_data.keys())
+            rows = zip(*[value.values() for value in json_data.values()])
+
+            context['headers'] = headers
+            context['rows'] = rows
+            return render(request, 'mortgage_app/property_detail.html', context)
 
     return render(request, 'mortgage_app/property_detail.html', context)
 
@@ -170,9 +207,11 @@ def close_contract(request, loan_id):
     if request.method == 'POST':
         property = get_object_or_404(Property, loan_id=loan_id)
         close_date = request.POST.get('contract_end_date')
+        date_obj = datetime.datetime.strptime(close_date, '%m/%d/%Y')
+        formatted_date = date_obj.strftime('%Y-%m-%d')
         if close_date:
             # Assuming you have a field 'closed' in your Property model
-            property.closed = close_date
+            property.closed = formatted_date
             property.save()
             return JsonResponse({'status': 'success'})
         return JsonResponse({'status': 'error', 'message': 'Invalid date'}, status=400)
@@ -184,16 +223,17 @@ def update_cost(request, loan_id):
     if request.method == 'POST':
         new_cost = request.POST.get('new_cost')
         date = request.POST.get('new_cost_date')
+        date_obj = datetime.datetime.strptime(date, '%m/%d/%Y')
+        formatted_date = date_obj.strftime('%Y-%m-%d')
         if new_cost:
             try:
                 new_cost = float(new_cost)
-                print(new_cost)
             except ValueError:
                 return JsonResponse({'status': 'error', 'message': 'Invalid cost value.'})
 
             property = get_object_or_404(Property, loan_id=loan_id)
             property.cost = new_cost
-            PropertyCostHistory.objects.create(property=property, cost=new_cost, created=date)
+            PropertyCostHistory.objects.create(property=property, cost=new_cost, created=formatted_date)
             property.save()
             return JsonResponse({'status': 'success', 'message': 'Cost updated successfully.'})
         else:
