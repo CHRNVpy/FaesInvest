@@ -65,7 +65,8 @@ def add_property(request):
         # Create a PropertyCostHistory object associated with the newly created Property
         PropertyCostHistory.objects.create(
             property=property_instance,
-            cost=cost
+            cost=cost,
+            created=date
         )
         return render(request, 'mortgage_app/add_property.html', {
             'success': 'Property added successfully!',
@@ -182,6 +183,7 @@ def close_contract(request, loan_id):
 def update_cost(request, loan_id):
     if request.method == 'POST':
         new_cost = request.POST.get('new_cost')
+        date = request.POST.get('new_cost_date')
         if new_cost:
             try:
                 new_cost = float(new_cost)
@@ -191,7 +193,7 @@ def update_cost(request, loan_id):
 
             property = get_object_or_404(Property, loan_id=loan_id)
             property.cost = new_cost
-            PropertyCostHistory.objects.create(property=property, cost=new_cost)
+            PropertyCostHistory.objects.create(property=property, cost=new_cost, created=date)
             property.save()
             return JsonResponse({'status': 'success', 'message': 'Cost updated successfully.'})
         else:

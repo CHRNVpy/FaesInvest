@@ -31,6 +31,9 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             padding: 20px;
             margin-bottom: 10px;
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
         }
         .chart-wrapper {
             width: 100%;
@@ -153,7 +156,7 @@
                     {% endfor %}
                 </select>
             </form>
-            <table>
+            <table id="table">
             <thead>
                 <tr>
                     {% for header in headers %}
@@ -187,6 +190,8 @@
     <div id="updateCostDialog" title="Update Cost" style="display:none;">
         <p>Enter new cost:</p>
         <input type="text" id="newCost" name="new_cost">
+        <p>Enter date:</p>
+        <input type="text" id="newCostDate" name="new_cost_date">
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -235,19 +240,26 @@
                     dateFormat: "yy-mm-dd"
                 });
             });
+            
+            $("#newCostDate").datepicker({
+                dateFormat: "yy-mm-dd" // Format the date as needed
+            });
+
             $("#updateCostBtn").click(function() {
                 $("#updateCostDialog").dialog({
                     modal: true,
                     buttons: {
                         "Update Cost": function() {
                             var newCost = $("#newCost").val();
-                            if (newCost) {
+                            var newCostDate = $("#newCostDate").val();
+                            if (newCost && newCostDate) {
                                 // Send AJAX request to update the cost
                                 $.ajax({
                                     url: "{% url 'mortgage_app:update_cost' property.loan_id %}",
                                     type: "POST",
                                     data: {
                                         'new_cost': newCost,
+                                        'new_cost_date': newCostDate,
                                         'csrfmiddlewaretoken': '{{ csrf_token }}'
                                     },
                                     success: function(response) {
@@ -263,7 +275,7 @@
                                 });
                                 $(this).dialog("close");
                             } else {
-                                alert("Please enter a new cost.");
+                                alert("Please enter both a new cost and a date.");
                             }
                         },
                         Cancel: function() {

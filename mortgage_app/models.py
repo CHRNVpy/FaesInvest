@@ -36,7 +36,7 @@ class PropertyFundShare(models.Model):
 class PropertyCostHistory(models.Model):
     property = models.ForeignKey(Property, on_delete=models.CASCADE)
     cost = models.DecimalField(max_digits=10, decimal_places=2)
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.property.name} - ${self.cost} on {self.created}"
