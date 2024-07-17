@@ -150,17 +150,17 @@ def property_detail(request, loan_id):
     if funds:
         dataframes = []
         for fund in funds:
-            properties = Property.objects.filter(propertyfundshare__fund__name=fund.name)
-            shares = []
-            for property in properties:
-                all_shares = PropertyFundShare.objects.filter(fund=fund, property=property) \
-                    .annotate(loan_id=F('property__loan_id')) \
-                    .annotate(closed=F('property__closed'))
+            # properties = Property.objects.filter(propertyfundshare__fund__name=fund.name)
+            # shares = []
+            # for property in properties:
+            all_shares = PropertyFundShare.objects.filter(fund=fund, property=property) \
+                .annotate(loan_id=F('property__loan_id')) \
+                .annotate(closed=F('property__closed'))
 
-                shares.extend(list(all_shares))
+            # shares.extend(list(all_shares))
 
-            df = create_dataframe(properties)
-            update_allocations(df, shares)
+            df = create_dataframe([property])
+            update_allocations(df, list(all_shares))
             df['fund_name'] = fund.name
             dataframes.append(df)
 
@@ -176,17 +176,17 @@ def property_detail(request, loan_id):
 
         if selected_fund_name:
             fund = get_object_or_404(Fund, name=selected_fund_name)
-            properties = Property.objects.filter(propertyfundshare__fund__name=selected_fund_name)
-            shares = []
-            for property in properties:
-                all_shares = PropertyFundShare.objects.filter(fund=fund, property=property) \
-                    .annotate(loan_id=F('property__loan_id')) \
-                    .annotate(closed=F('property__closed'))
+            # properties = Property.objects.filter(propertyfundshare__fund__name=selected_fund_name)
+            # shares = []
+            # for property in properties:
+            all_shares = PropertyFundShare.objects.filter(fund=fund, property=property) \
+                .annotate(loan_id=F('property__loan_id')) \
+                .annotate(closed=F('property__closed'))
 
-                shares.extend(list(all_shares))
+            # shares.extend(list(all_shares))
 
-            df = create_dataframe(properties)
-            update_allocations(df, shares)
+            df = create_dataframe([property])
+            update_allocations(df, list(all_shares))
             df.rename(columns={'loan_id': 'Loan ID', 'property_name': 'Property Name', 'cost': 'Cost'}, inplace=True)
 
             df_json = df.to_json(index=False)
