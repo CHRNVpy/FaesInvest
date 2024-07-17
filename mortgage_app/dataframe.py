@@ -77,12 +77,11 @@ def update_allocations(df, updates: List[PropertyFundShare]) -> pd.DataFrame:
             #     df.iloc[idx, closed_idx:] = 0.00
             if prop_closed:
                 closed_month = prop_closed.strftime('%b-%y')
-                closed_idx = df.columns.get_loc(closed_month) + 1
+                closed_idx = df.columns.get_loc(closed_month)
 
-                if closed_idx < len(df.columns):
-                    df.iloc[idx, closed_idx:] = 0.00
-                else:
-                    df.iloc[idx, closed_idx - 1] = 0.00
+                df.loc[idx, df.columns[closed_idx]] = 0.00
+                if closed_idx + 1 < len(df.columns):
+                    df.loc[idx, df.columns[closed_idx + 1:]] = 0.00
     return df
 
 
