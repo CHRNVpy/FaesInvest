@@ -58,9 +58,8 @@
         }
 
         /* Freeze first 3 columns */
-        /* Freeze first 3 columns */
-        th:nth-child(-n+3),
-        td:nth-child(-n+3) {
+        th:nth-child(-n+2),
+        td:nth-child(-n+2) {
             position: sticky;
             background-color: #fff; /* Ensure background-color to overlap other columns */
             z-index: 1;
@@ -71,7 +70,7 @@
             z-index: 2; /* Ensure higher z-index */
         }
         th:nth-child(2), td:nth-child(2) {
-            left: 106px; /* Adjust based on the width of the first column */
+            left: 105px; /* Adjust based on the width of the first column */
             z-index: 3; /* Ensure higher z-index */
         }
 
