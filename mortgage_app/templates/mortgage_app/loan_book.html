@@ -38,18 +38,22 @@
         .button-container button:hover {
             background-color: #0056b3;
         }
-        .button-container .property-button {
+        .button-container .property-button,
+        .button-container .shares-button,
+        .button-container .monthly-shares-button {
             background-color: #28a745;
         }
-        .button-container .property-button:hover {
+        .button-container .property-button:hover,
+        .button-container .shares-button:hover,
+        .button-container .monthly-shares-button:hover {
             background-color: #218838;
         }
-        .button-container .shares-button {
-            background-color: #28a745;
-        }
-        .button-container .shares-button:hover {
-            background-color: #218838;
-        }
+<!--        .button-container .shares-button {-->
+<!--            background-color: #28a745;-->
+<!--        }-->
+<!--        .button-container .shares-button:hover {-->
+<!--            background-color: #218838;-->
+<!--        }-->
         .button-container .choose-app {
             background-color: #006400;
         }
@@ -70,6 +74,7 @@
         <button onclick="location.href='{% url 'mortgage_app:property_fund_share_add' %}'">Add fund share</button>
         <button class="property-button" onclick="location.href='{% url 'mortgage_app:property_list' %}'">List Property</button>
         <button class="shares-button" onclick="location.href='{% url 'mortgage_app:fund_shares' %}'">List Shares</button>
+        <button class="monthly-shares-button" onclick="location.href='{% url 'mortgage_app:fund_shares_monthly' %}'">List Shares Monthly</button>
         <button class="back-button" onclick="location.href='{% url 'mortgage_app:home' %}'">Back to Home</button>
         <button class="choose-app" onclick="location.href='{% url 'choose_app' %}'">Change App</button>
     </div>

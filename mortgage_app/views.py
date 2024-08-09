@@ -1,10 +1,13 @@
+import calendar
+import csv
 import datetime
 import json
 
 from django.contrib.auth.decorators import login_required
-from django.db.models import OuterRef, Subquery, F, Max
+from django.db.models import OuterRef, Subquery, F, Max, Q
+from django.db.models.functions import ExtractYear, ExtractMonth
 from django.forms import model_to_dict
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
@@ -241,6 +244,7 @@ def update_cost(request, loan_id):
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
 
 
+@csrf_exempt
 def add_fund(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -386,6 +390,35 @@ def list_shares(request):
 
 
 @login_required
+def list_shares_monthly(request):
+    funds = Fund.objects.all()
+    years = PropertyFundShare.objects.annotate(year=ExtractYear('date_of_change')).values('year').distinct()
+    months = PropertyFundShare.objects.annotate(month=ExtractMonth('date_of_change')).values('month').distinct()
+    sorted_months = sorted(months, key=lambda x: x['month'])
+    named_months = [{'month': calendar.month_name[month['month']]} for month in sorted_months]
+    selected_year = request.GET.get('year')
+    selected_month = request.GET.get('month')
+
+    context = {
+        'funds': funds,
+        'years': years,
+        'months': named_months,
+        'selected_year': int(selected_year) if selected_year else None,
+        'selected_month': selected_month
+    }
+
+    if selected_year and selected_month:
+        month_number = list(calendar.month_name).index(selected_month.capitalize())
+        records = PropertyFundShare.objects.filter(
+            Q(date_of_change__year=selected_year) & Q(date_of_change__month=month_number)
+        ).order_by('date_of_change')
+
+        context['shares'] = records
+
+    return render(request, 'mortgage_app/fund_shares_monthly.html', context)
+
+
+@csrf_exempt
 @require_POST
 def save_to_google_sheets(request):
     try:
@@ -434,3 +467,33 @@ def save_to_google_sheets(request):
         return JsonResponse({'success': True})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+
+
+@csrf_exempt
+def save_to_csv(request):
+    selected_year = request.GET.get('year')
+    selected_month = request.GET.get('month')
+
+    # Fetch shares based on selected filters
+    month_number = list(calendar.month_name).index(selected_month.capitalize())
+    shares = PropertyFundShare.objects.filter(
+        Q(date_of_change__year=selected_year) & Q(date_of_change__month=month_number)
+    ).order_by('date_of_change')
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="shares_data_{selected_year}_{selected_month}.csv"'
+
+    # CSV writer
+    writer = csv.writer(response)
+    writer.writerow(['Date', 'Loan ID', 'Property Name', 'Fund', 'Amount'])
+
+    for share in shares:
+        writer.writerow([
+            share.date_of_change,
+            share.property.loan_id,
+            share.property.name,
+            share.fund.name,
+            share.share_amount
+        ])
+
+    return response

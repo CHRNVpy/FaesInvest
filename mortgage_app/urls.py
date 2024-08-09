@@ -15,5 +15,7 @@ urlpatterns = [
     path('property_fund_share/add/', views.PropertyFundShareCreateView.as_view(), name='property_fund_share_add'),
     path('get_property_info/', views.get_property_info, name='get_property_info'),
     path('fund_shares', views.list_shares, name='fund_shares'),
+    path('fund_shares_monthly', views.list_shares_monthly, name='fund_shares_monthly'),
     path('save-to-google-sheets/', views.save_to_google_sheets, name='save_to_google_sheets'),
+    path('save-to-csv/', views.save_to_csv, name='save_to_csv'),
 ]
