@@ -409,9 +409,34 @@ def list_shares_monthly(request):
 
     if selected_year and selected_month:
         month_number = list(calendar.month_name).index(selected_month.capitalize())
-        records = PropertyFundShare.objects.filter(
+        properties = Property.objects.all()
+        extended_records = []
+
+        for property in properties:
+            properties_shares = PropertyFundShare.objects.filter(
+                Q(date_of_change__year__lte=selected_year) &
+                Q(date_of_change__month__lte=month_number-1),
+                property=property,
+            )
+
+            # Update the date_of_change for each share
+            for share in properties_shares:
+                share.date_of_change = share.date_of_change.replace(year=int(selected_year), month=month_number, day=1)
+                if property.closed and share.date_of_change > property.closed:
+                    continue
+                if share not in extended_records:
+                    extended_records.append(share)
+
+        # Original records with the selected year and month
+        records = list(PropertyFundShare.objects.filter(
             Q(date_of_change__year=selected_year) & Q(date_of_change__month=month_number)
-        ).order_by('date_of_change')
+        ).order_by('date_of_change'))
+
+        # Extend the original records with the updated shares
+        records.extend(extended_records)
+
+        # You may want to sort the records again by date_of_change if needed
+        records = sorted(records, key=lambda x: x.date_of_change)
 
         context['shares'] = records
 
@@ -476,9 +501,34 @@ def save_to_csv(request):
 
     # Fetch shares based on selected filters
     month_number = list(calendar.month_name).index(selected_month.capitalize())
-    shares = PropertyFundShare.objects.filter(
+    properties = Property.objects.all()
+    extended_records = []
+
+    for property in properties:
+        properties_shares = PropertyFundShare.objects.filter(
+            Q(date_of_change__year__lte=selected_year) &
+            Q(date_of_change__month__lte=month_number - 1),
+            property=property,
+        )
+
+        # Update the date_of_change for each share
+        for share in properties_shares:
+            share.date_of_change = share.date_of_change.replace(year=int(selected_year), month=month_number, day=1)
+            if property.closed and share.date_of_change > property.closed:
+                continue
+            if share not in extended_records:
+                extended_records.append(share)
+
+    # Original records with the selected year and month
+    records = list(PropertyFundShare.objects.filter(
         Q(date_of_change__year=selected_year) & Q(date_of_change__month=month_number)
-    ).order_by('date_of_change')
+    ).order_by('date_of_change'))
+
+    # Extend the original records with the updated shares
+    records.extend(extended_records)
+
+    # You may want to sort the records again by date_of_change if needed
+    shares = sorted(records, key=lambda x: x.date_of_change)
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f'attachment; filename="shares_data_{selected_year}_{selected_month}.csv"'
