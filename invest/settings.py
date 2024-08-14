@@ -90,14 +90,7 @@ WSGI_APPLICATION = 'invest.wsgi.application'
 
 if DEVELOPMENT_MODE is True:
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'faes_invest',
-            'USER': 'postgres',
-            'PASSWORD': 'postgres',  # os.getenv('POSTGRES_PASSWORD'),
-            'HOST': 'localhost',  # Set to 'db' to use the PostgreSQL Docker container
-            'PORT': 5432,
-        }
+        'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
     }
 elif len(sys.argv) > 0 and sys.argv[1] != 'collectstatic':
     if os.getenv("DATABASE_URL", None) is None:

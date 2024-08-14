@@ -396,36 +396,57 @@ def list_shares_monthly(request):
     months = PropertyFundShare.objects.annotate(month=ExtractMonth('date_of_change')).values('month').distinct()
     sorted_months = sorted(months, key=lambda x: x['month'])
     named_months = [{'month': calendar.month_name[month['month']]} for month in sorted_months]
-    selected_year = request.GET.get('year')
+    selected_year = int(request.GET.get('year')) if request.GET.get('year') else None
     selected_month = request.GET.get('month')
 
     context = {
         'funds': funds,
         'years': years,
         'months': named_months,
-        'selected_year': int(selected_year) if selected_year else None,
+        'selected_year': selected_year if selected_year else None,
         'selected_month': selected_month
     }
 
     if selected_year and selected_month:
         month_number = list(calendar.month_name).index(selected_month.capitalize())
+        previous_month = 12 if month_number == 1 else month_number - 1
         properties = Property.objects.all()
         extended_records = []
 
         for property in properties:
+            # Include records from the previous year and the current year up to the previous month
             properties_shares = PropertyFundShare.objects.filter(
-                Q(date_of_change__year__lte=selected_year) &
-                Q(date_of_change__month__lte=month_number-1),
-                property=property,
-            )
+                Q(
+                    Q(date_of_change__year=int(selected_year) - 1) |  # Previous year
+                    Q(date_of_change__year=int(selected_year), date_of_change__month__lte=previous_month)
+                    # Current year, previous months
+                ),
+                property=property
+            ).order_by('fund_id', '-date_of_change')  # Order by fund_id and latest date
 
-            # Update the date_of_change for each share
+            # Dictionary to track whether to skip shares for a fund
+            skip_fund = {}
+
             for share in properties_shares:
-                share.date_of_change = share.date_of_change.replace(year=int(selected_year), month=month_number, day=1)
-                if property.closed and share.date_of_change > property.closed:
+                # Check if we have already decided to skip this fund
+                if share.fund_id in skip_fund:
                     continue
-                if share not in extended_records:
+
+                # If the latest share amount for this fund is 0, mark this fund to be skipped
+                if share.share_amount == 0:
+                    skip_fund[share.fund_id] = True
+                    continue  # Skip all shares from this fund
+
+                # If this share is the first (latest) one and the share amount is not 0, add it to extended_records
+                if share.fund_id not in skip_fund:
+                    # Update the date_of_change for the share
+                    share.date_of_change = share.date_of_change.replace(year=int(selected_year), month=month_number,
+                                                                        day=1)
+                    if property.closed and share.date_of_change > property.closed:
+                        continue
+
                     extended_records.append(share)
+                    skip_fund[share.fund_id] = False  # Mark this fund as processed
 
         # Original records with the selected year and month
         records = list(PropertyFundShare.objects.filter(
@@ -501,23 +522,44 @@ def save_to_csv(request):
 
     # Fetch shares based on selected filters
     month_number = list(calendar.month_name).index(selected_month.capitalize())
+    previous_month = 12 if month_number == 1 else month_number - 1
     properties = Property.objects.all()
     extended_records = []
 
     for property in properties:
+        # Include records from the previous year and the current year up to the previous month
         properties_shares = PropertyFundShare.objects.filter(
-            Q(date_of_change__year__lte=selected_year) &
-            Q(date_of_change__month__lte=month_number - 1),
-            property=property,
-        )
+            Q(
+                Q(date_of_change__year=int(selected_year) - 1) |  # Previous year
+                Q(date_of_change__year=int(selected_year), date_of_change__month__lte=previous_month)
+                # Current year, previous months
+            ),
+            property=property
+        ).order_by('fund_id', '-date_of_change')  # Order by fund_id and latest date
 
-        # Update the date_of_change for each share
+        # Dictionary to track whether to skip shares for a fund
+        skip_fund = {}
+
         for share in properties_shares:
-            share.date_of_change = share.date_of_change.replace(year=int(selected_year), month=month_number, day=1)
-            if property.closed and share.date_of_change > property.closed:
+            # Check if we have already decided to skip this fund
+            if share.fund_id in skip_fund:
                 continue
-            if share not in extended_records:
+
+            # If the latest share amount for this fund is 0, mark this fund to be skipped
+            if share.share_amount == 0:
+                skip_fund[share.fund_id] = True
+                continue  # Skip all shares from this fund
+
+            # If this share is the first (latest) one and the share amount is not 0, add it to extended_records
+            if share.fund_id not in skip_fund:
+                # Update the date_of_change for the share
+                share.date_of_change = share.date_of_change.replace(year=int(selected_year), month=month_number,
+                                                                    day=1)
+                if property.closed and share.date_of_change > property.closed:
+                    continue
+
                 extended_records.append(share)
+                skip_fund[share.fund_id] = False  # Mark this fund as processed
 
     # Original records with the selected year and month
     records = list(PropertyFundShare.objects.filter(
