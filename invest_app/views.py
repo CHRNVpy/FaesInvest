@@ -29,6 +29,7 @@ def add_client(request):
         investment_rate = request.POST.get('investment_rate')
         investment_amount = request.POST.get('investment_amount')
         investment_type = request.POST.get('investment_type')
+        investment_count_method = request.POST.get('investment_count_method')
 
         errors = []
 
@@ -55,6 +56,7 @@ def add_client(request):
                 'investment_rate': investment_rate,
                 'investment_amount': investment_amount,
                 'investment_type': investment_type,
+                'investment_count_method': investment_count_method
             })
 
         Client.objects.create(
@@ -66,6 +68,7 @@ def add_client(request):
             investment_rate=investment_rate,
             investment_amount=investment_amount,
             investment_type=investment_type,
+            investment_count_method=investment_count_method
         )
 
         return render(request, 'invest_app/add_client.html', {
@@ -78,6 +81,7 @@ def add_client(request):
             'investment_rate': '',
             'investment_amount': '',
             'investment_type': '',
+            'investment_count_method': ''
         })
 
     return render(request, 'invest_app/add_client.html')

@@ -90,7 +90,7 @@ WSGI_APPLICATION = 'invest.wsgi.application'
 
 if DEVELOPMENT_MODE is True:
     DATABASES = {
-        'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
+        'default': dj_database_url.config(default=os.getenv('DEV_DATABASE_URL'))
     }
 elif len(sys.argv) > 0 and sys.argv[1] != 'collectstatic':
     if os.getenv("DATABASE_URL", None) is None:

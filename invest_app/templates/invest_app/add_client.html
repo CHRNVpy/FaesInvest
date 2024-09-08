@@ -93,6 +93,11 @@
                 <option value="Direct Deposit" {% if investment_type == "Direct Deposit" %}selected{% endif %}>Direct Deposit</option>
                 <option value="Reinvestment" {% if investment_type == "Reinvestment" %}selected{% endif %}>Reinvestment</option>
             </select>
+            <select name="investment_count_method" required>
+                <option value="" disabled selected>Select Count method</option>
+                <option value="Monthly" {% if investment_count_method == "Monthly" %}selected{% endif %}>Monthly</option>
+                <option value="Daily" {% if investment_count_method == "Daily" %}selected{% endif %}>Daily</option>
+            </select>
             <button type="submit">Submit</button>
         </form>
         <button class="back-button" onclick="location.href='{% url 'invest_app:home' %}'">Back to Home</button>
