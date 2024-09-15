@@ -12,7 +12,7 @@ from .models import TableRow
 
 load_dotenv()
 
-encoded_service_account = os.getenv('SERVICE_ACCOUNT')
+encoded_service_account = os.getenv('GSPREAD_SERVICE_ACCOUNT')
 
 # Decode the Base64 string to get the JSON content
 service_account_info = json.loads(base64.b64decode(encoded_service_account))
