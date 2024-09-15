@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'core',
     'invest_app',
     'mortgage_app',
+    'intercompany_app'
 ]
 
 MIDDLEWARE = [

@@ -26,4 +26,5 @@ urlpatterns = [
     path('choose-app/', choose_app, name='choose_app'),
     path('invest_app/', include('invest_app.urls')),
     path('mortgage_app/', include('mortgage_app.urls')),
+    path('intercompany_app/', include('intercompany_app.urls')),
 ]

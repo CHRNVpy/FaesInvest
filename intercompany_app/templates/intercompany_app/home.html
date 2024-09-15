@@ -1,0 +1,64 @@
+<!-- /templates/intercompany_app/home.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InterCompany App Home</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f7f7f7;
+        }
+        .logo-container {
+            margin-bottom: 50px; /* Adjust this value to increase/decrease space */
+        }
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .button-container button {
+            margin: 10px;
+            padding: 15px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #006dd1;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 200px;
+        }
+        .button-container button:hover {
+            background-color: #0056b3;
+        }
+        .button-container .choose-app {
+            background-color: #006400;
+        }
+        .button-container .choose-app:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Include the static files in the template -->
+    <div class="logo-container">
+        {% load static %}
+        <img src="{% static 'images/faes_co_logo.png' %}" alt="Logo" style="width: 200px; height: auto;">
+    </div>
+    <div class="button-container">
+<!--        <button onclick="location.href='{% url 'invest_app:add_client' %}'">Add Client</button>-->
+<!--        <button onclick="location.href='{% url 'invest_app:list_clients' %}'">List Clients</button>-->
+<!--        <button onclick="location.href='{% url 'invest_app:show_table' %}'">Investments Data</button>-->
+        <button onclick="location.href='{% url 'intercompany_app:add_table' %}'">Add Table</button>
+        <button onclick="location.href='{% url 'intercompany_app:view_table' %}'">View Table</button>
+        <button class="choose-app" onclick="location.href='{% url 'choose_app' %}'">Change App</button>
+    </div>
+</body>
+</html>
