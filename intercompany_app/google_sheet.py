@@ -12,7 +12,7 @@ from .models import TableRow
 
 load_dotenv()
 
-encoded_service_account = os.getenv('GSPREAD_SERVICE_ACCOUNT')
+encoded_service_account = os.getenv('SERVICE_ACCOUNT')
 
 # Decode the Base64 string to get the JSON content
 service_account_info = json.loads(base64.b64decode(encoded_service_account))
@@ -20,7 +20,7 @@ service_account_info = json.loads(base64.b64decode(encoded_service_account))
 client = gspread.service_account_from_dict(service_account_info)
 
 # Create a Google Spreadsheet instance
-spreadsheet = client.open("Intercompany")
+spreadsheet = client.open("TEST_TABLE")
 
 
 def create_new_sheet(name: str):
@@ -50,6 +50,7 @@ def investment_calc(entry: TableRow, google=False):
     data = {
         'id': entry.id,
         'Date': entry_date,
+        'Finished': close_date,
         'Principal': amount_invested,
         'Description': entry.name,
         'Loan ID': entry.loan_id if entry.loan_id else '',
@@ -59,6 +60,7 @@ def investment_calc(entry: TableRow, google=False):
     if google:
         data = {
             'Date': entry_date,
+            'Finished': close_date,
             'Principal': amount_invested,
             'Description': entry.name,
             'Loan ID': entry.loan_id if entry.loan_id else '',
@@ -79,6 +81,8 @@ def investment_calc(entry: TableRow, google=False):
             elif entry.investment_method == 'Daily 360':
                 monthly_rate = daily_360_rate * days_in_month
             monthly_interest_month = (amount_invested * monthly_rate * (days_in_month / days_in_month)) / 2
+        elif month == date_range_monthly[-1] and entry.finished: # new
+            monthly_interest_month = amount_invested * daily_rate * close_date.day
         elif month == date_range_monthly[-1] and end_date.day >= 15:
             # Calculate interest for the last month based on days passed
             if entry.investment_method == 'Daily':
@@ -101,6 +105,27 @@ def investment_calc(entry: TableRow, google=False):
 
     return data
 
+def build_table(entries: TableRow) -> tuple[dict, dict]:
+    all_data = []
+
+    for entry in entries:
+        enriched_data = investment_calc(entry)
+        all_data.append(enriched_data)
+
+    df = pd.DataFrame(all_data)
+    df['Date'] = pd.to_datetime(df['Date'])
+    df['Date'] = df['Date'].dt.strftime("%b %d, %Y")
+
+    df['Finished'] = pd.to_datetime(df['Finished'])
+    df['Finished'] = df['Finished'].dt.strftime("%b %d, %Y")
+
+    df['Rate'] = df['Rate'].astype(float)
+    df = df.fillna('')
+
+    data_list = df.values.tolist()
+
+    return df.columns.tolist(), data_list
+
 def update_spreadsheet(data, sheet_name):
     all_data = []
 
@@ -111,6 +136,10 @@ def update_spreadsheet(data, sheet_name):
     df = pd.DataFrame(all_data)
     df['Date'] = pd.to_datetime(df['Date'])
     df['Date'] = df['Date'].dt.strftime('%m-%d-%Y')
+
+    df['Finished'] = pd.to_datetime(df['Finished'])
+    df['Finished'] = df['Finished'].dt.strftime('%m-%d-%Y')
+
     df['Rate'] = df['Rate'].astype(float)
     df = df.fillna('')
 

@@ -41,22 +41,21 @@ def view_table(request):
 
     if selected_table_name:
         total_investment = \
-        TableRow.objects.filter(table_id__name=selected_table_name).aggregate(Sum('investment_amount'))[
-            'investment_amount__sum']
+            TableRow.objects.filter(
+                table_id__name=selected_table_name,
+                finished__isnull=True
+            ).order_by('created').aggregate(Sum('investment_amount'))['investment_amount__sum']
 
         context['total_balance'] = total_investment
 
         rows = TableRow.objects.filter(table_id__name=selected_table_name)
         if rows:
-            data = []
-            for row in rows:
-                enriched_data = google_sheet.investment_calc(row)
-                data.append(enriched_data)
 
-            headers = list(data[0].keys())
+            headers, rows = google_sheet.build_table(rows)
+
             context["company_table_data"] = True
             context["headers"] = headers
-            context["rows"] =  [list(value.values()) for value in data]
+            context["rows"] = rows
 
     return render(request, 'intercompany_app/table_view.html', context)
 
