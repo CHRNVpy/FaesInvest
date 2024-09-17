@@ -41,14 +41,13 @@ def view_table(request):
 
     if selected_table_name:
         total_investment = \
-            TableRow.objects.filter(
-                table_id__name=selected_table_name,
-                finished__isnull=True
-            ).order_by('created').aggregate(Sum('investment_amount'))['investment_amount__sum']
+        TableRow.objects.filter(table_id__name=selected_table_name,
+                                finished__isnull=True).aggregate(Sum('investment_amount'))[
+            'investment_amount__sum']
 
         context['total_balance'] = total_investment
 
-        rows = TableRow.objects.filter(table_id__name=selected_table_name)
+        rows = TableRow.objects.filter(table_id__name=selected_table_name).order_by('-finished')
         if rows:
 
             headers, rows = google_sheet.build_table(rows)

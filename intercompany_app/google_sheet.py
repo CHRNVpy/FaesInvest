@@ -20,7 +20,7 @@ service_account_info = json.loads(base64.b64decode(encoded_service_account))
 client = gspread.service_account_from_dict(service_account_info)
 
 # Create a Google Spreadsheet instance
-spreadsheet = client.open("TEST_TABLE")
+spreadsheet = client.open("Intercompany")
 
 
 def create_new_sheet(name: str):
