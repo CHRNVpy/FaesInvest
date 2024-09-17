@@ -47,7 +47,7 @@ def view_table(request):
 
         context['total_balance'] = total_investment
 
-        rows = TableRow.objects.filter(table_id__name=selected_table_name).order_by('-created')
+        rows = TableRow.objects.filter(table_id__name=selected_table_name).order_by('created')
         if rows:
 
             headers, rows = google_sheet.build_table(rows)
