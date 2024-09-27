@@ -73,18 +73,18 @@ def investment_calc(entry: TableRow, google=False):
 
     for month in date_range_monthly:
         days_in_month = (end_date - month).days + 1
-        if month == date_range_monthly[0] and start_date.day != 1 and start_date.day != 15:
+        if month == date_range_monthly[0]:
             if entry.investment_method == 'Daily':
                 monthly_rate = daily_rate * days_in_month
             elif entry.investment_method == 'Daily 360':
                 monthly_rate = daily_360_rate * days_in_month
             monthly_interest_month = amount_invested * monthly_rate * (rest_days_in_first_month / days_in_month)
-        elif month == date_range_monthly[0] and start_date.day == 15:
-            if entry.investment_method == 'Daily':
-                monthly_rate = daily_rate * days_in_month
-            elif entry.investment_method == 'Daily 360':
-                monthly_rate = daily_360_rate * days_in_month
-            monthly_interest_month = amount_invested * monthly_rate * (15 / days_in_month)
+        # elif month == date_range_monthly[0] and start_date.day == 15:
+        #     if entry.investment_method == 'Daily':
+        #         monthly_rate = daily_rate * days_in_month
+        #     elif entry.investment_method == 'Daily 360':
+        #         monthly_rate = daily_360_rate * days_in_month
+        #     monthly_interest_month = amount_invested * monthly_rate * (15 / days_in_month)
         elif month == date_range_monthly[-1] and entry.finished: # new
             monthly_interest_month = amount_invested * daily_rate * close_date.day
         elif month == date_range_monthly[-1] and end_date.day >= 15:
