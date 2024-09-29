@@ -1,4 +1,5 @@
 import json
+import time
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
@@ -101,14 +102,15 @@ def edit_finished_date(request):
 
 @login_required()
 def push_to_google_table(request):
-    # data = json.loads(request.body)
-    # selected_table_name = data.get('company')
-    tables = Table.objects.all()
-    try:
-        for table in tables:
-        # if selected_table_name:
-            rows = TableRow.objects.filter(table_id__name=table.name)
-            google_sheet.update_spreadsheet(rows, table.name)
-        return JsonResponse({'success': True})
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
+    data = json.loads(request.body)
+    if data.get('update', False):
+        tables = Table.objects.all()
+        try:
+            for table in tables:
+            # if selected_table_name:
+                rows = TableRow.objects.filter(table_id__name=table.name)
+                google_sheet.update_spreadsheet(rows, table.name)
+                time.sleep(1)
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})

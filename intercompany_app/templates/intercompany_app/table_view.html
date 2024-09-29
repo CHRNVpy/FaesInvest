@@ -88,7 +88,6 @@
             box-shadow: 2px 0 5px -2px rgba(0,0,0,0.3);
         }
 
-
         .back-button, .close-contract-button {
             margin-top: 20px;
             padding: 10px;
@@ -102,21 +101,6 @@
         }
         .back-button:hover, .close-contract-button:hover {
             background-color: #0056b3;
-        }
-        .save-button {
-            margin-top: 10px;
-            margin-bottom: 20px;
-            padding: 10px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            background-color: #4CAF50;
-            color: white;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .save-button:hover {
-            background-color: #45a049;
         }
         .add-trans-button {
             margin-top: 10px;
@@ -182,7 +166,7 @@
             </form>
             <button id="addTransaction" class="add-trans-button">Add transaction</button>
 <!--            <button id="closeTransaction" class="close-trans-button">Close transaction</button>-->
-            <button id="saveToGoogleSheets" class="save-button">Save to Google Sheets</button>
+<!--            <button id="saveToGoogleSheets" class="save-button">Save to Google Sheets</button>-->
             {% if company_table_data %}
                 <div class="table-container">
                     <table>
@@ -346,31 +330,6 @@
             });
         });
 
-        document.getElementById('saveToGoogleSheets').addEventListener('click', function() {
-            const selectedCompany = document.getElementById('company').value;
-            fetch('{% url "intercompany_app:save_to_google_sheets" %}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    company: selectedCompany
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Data saved to Google Sheets successfully!');
-                } else {
-                    alert('Error saving data to Google Sheets: ' + (data.error || 'Unknown error'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while saving data to Google Sheets.');
-            });
-        });
     </script>
 </body>
 </html>

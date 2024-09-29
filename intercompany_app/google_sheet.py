@@ -1,6 +1,8 @@
 import base64
 import json
 import os
+import time
+from functools import total_ordering
 
 import gspread
 import pandas as pd
@@ -76,27 +78,26 @@ def investment_calc(entry: TableRow, google=False):
         if month == date_range_monthly[0]:
             if entry.investment_method == 'Daily':
                 monthly_rate = daily_rate * days_in_month
+                monthly_interest_month = amount_invested * monthly_rate * (rest_days_in_first_month / days_in_month)
             elif entry.investment_method == 'Daily 360':
                 monthly_rate = daily_360_rate * days_in_month
-            monthly_interest_month = amount_invested * monthly_rate * (rest_days_in_first_month / days_in_month)
-        # elif month == date_range_monthly[0] and start_date.day == 15:
-        #     if entry.investment_method == 'Daily':
-        #         monthly_rate = daily_rate * days_in_month
-        #     elif entry.investment_method == 'Daily 360':
-        #         monthly_rate = daily_360_rate * days_in_month
-        #     monthly_interest_month = amount_invested * monthly_rate * (15 / days_in_month)
-        elif month == date_range_monthly[-1] and entry.finished: # new
-            monthly_interest_month = amount_invested * daily_rate * close_date.day
-        elif month == date_range_monthly[-1] and end_date.day >= 15:
-            # Calculate interest for the last month based on days passed
-            if entry.investment_method == 'Daily':
-                monthly_rate = daily_rate * days_in_month
-            elif entry.investment_method == 'Daily 360':
-                monthly_rate = daily_360_rate * days_in_month
-            monthly_interest_month = amount_invested * monthly_rate * (days_in_month / days_in_month)
-        elif month == date_range_monthly[-1] and end_date.day < 15:
-            # Calculate interest for the last month based on days passed
-            monthly_interest_month = amount_invested * daily_rate * days_in_month
+                monthly_interest_month = amount_invested * monthly_rate * (rest_days_in_first_month / days_in_month)
+            else:
+                if start_date.day == 1:
+                    monthly_interest_month = amount_invested * monthly_rate * (days_in_month / days_in_month)
+                else:
+                    monthly_interest_month = amount_invested * monthly_rate * (rest_days_in_first_month / days_in_month)
+        elif month == date_range_monthly[-1] and entry.finished:
+            total_days_in_month = calendar.monthrange(month.year, month.month)[1]
+            if end_date.day < total_days_in_month:
+                daily_rate = daily_360_rate if entry.investment_method == 'Daily 360' else daily_rate
+                monthly_interest_month = amount_invested * daily_rate * days_in_month
+            else:
+                if entry.investment_method == 'Daily':
+                    monthly_rate = daily_rate * days_in_month
+                elif entry.investment_method == 'Daily 360':
+                    monthly_rate = daily_360_rate * days_in_month
+                monthly_interest_month = amount_invested * monthly_rate * (total_days_in_month / total_days_in_month)
         else:
             days_in_month = calendar.monthrange(month.year, month.month)[1]
             if entry.investment_method == 'Daily':
@@ -153,4 +154,5 @@ def update_spreadsheet(data, sheet_name):
     sheet.clear()
     sheet.resize(rows=1)
     sheet.append_row(df.columns.tolist())
+    time.sleep(1)
     sheet.append_rows(data_list)

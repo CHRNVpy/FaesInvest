@@ -38,6 +38,13 @@
         .button-container button:hover {
             background-color: #0056b3;
         }
+
+        .button-container .save-button {
+            background-color: #38761d;
+        }
+        .save-button:hover {
+            background-color: #45a049;
+        }
         .button-container .choose-app {
             background-color: #006400;
         }
@@ -47,18 +54,42 @@
     </style>
 </head>
 <body>
-    <!-- Include the static files in the template -->
     <div class="logo-container">
         {% load static %}
         <img src="{% static 'images/faes_co_logo.png' %}" alt="Logo" style="width: 200px; height: auto;">
     </div>
     <div class="button-container">
-<!--        <button onclick="location.href='{% url 'invest_app:add_client' %}'">Add Client</button>-->
-<!--        <button onclick="location.href='{% url 'invest_app:list_clients' %}'">List Clients</button>-->
-<!--        <button onclick="location.href='{% url 'invest_app:show_table' %}'">Investments Data</button>-->
         <button onclick="location.href='{% url 'intercompany_app:add_table' %}'">Add Table</button>
         <button onclick="location.href='{% url 'intercompany_app:view_table' %}'">View Table</button>
+        <button id="saveToGoogleSheets" class="save-button">Save to Google Sheets</button>
         <button class="choose-app" onclick="location.href='{% url 'choose_app' %}'">Change App</button>
     </div>
+    <script>
+        document.getElementById('saveToGoogleSheets').addEventListener('click', function() {
+<!--            const selectedCompany = document.getElementById('company').value;-->
+            fetch('{% url "intercompany_app:save_to_google_sheets" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    update: true
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Data saved to Google Sheets successfully!');
+                } else {
+                    alert('Error saving data to Google Sheets: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while saving data to Google Sheets.');
+            });
+        });
+    </script>
 </body>
 </html>
