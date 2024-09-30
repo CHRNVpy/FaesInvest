@@ -107,10 +107,8 @@ def push_to_google_table(request):
         tables = Table.objects.all()
         try:
             for table in tables:
-            # if selected_table_name:
                 rows = TableRow.objects.filter(table_id__name=table.name)
                 google_sheet.update_spreadsheet(rows, table.name)
-                time.sleep(1)
             return JsonResponse({'success': True})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})

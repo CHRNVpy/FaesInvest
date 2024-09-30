@@ -86,6 +86,7 @@ def investment_calc(entry: TableRow, google=False):
                 if start_date.day == 1:
                     monthly_interest_month = amount_invested * monthly_rate * (days_in_month / days_in_month)
                 else:
+                    monthly_rate = daily_rate * days_in_month
                     monthly_interest_month = amount_invested * monthly_rate * (rest_days_in_first_month / days_in_month)
         elif month == date_range_monthly[-1] and entry.finished:
             total_days_in_month = calendar.monthrange(month.year, month.month)[1]
@@ -148,11 +149,17 @@ def update_spreadsheet(data, sheet_name):
     df['Rate'] = df['Rate'].astype(float)
     df = df.fillna('')
 
+    # Extract month-year columns and sort them in chronological order
+    month_columns = [col for col in df.columns if '-' in col]
+    sorted_month_columns = sorted(month_columns, key=lambda x: pd.to_datetime(x, format='%b-%Y'))
+
+    # Reorder the DataFrame columns with sorted months
+    df = df[['Date', 'Finished', 'Principal', 'Description', 'Loan ID', 'Rate'] + sorted_month_columns]
+
     data_list = df.values.tolist()
 
     sheet = spreadsheet.worksheet(sheet_name)
     sheet.clear()
     sheet.resize(rows=1)
     sheet.append_row(df.columns.tolist())
-    time.sleep(1)
     sheet.append_rows(data_list)
