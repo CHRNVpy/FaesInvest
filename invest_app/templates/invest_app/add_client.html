@@ -97,6 +97,7 @@
                 <option value="" disabled selected>Select Count method</option>
                 <option value="Monthly" {% if investment_count_method == "Monthly" %}selected{% endif %}>Monthly</option>
                 <option value="Daily" {% if investment_count_method == "Daily" %}selected{% endif %}>Daily</option>
+                <option value="Daily 360" {% if investment_count_method == "Daily 360" %}selected{% endif %}>Daily 360</option>
             </select>
             <button type="submit">Submit</button>
         </form>

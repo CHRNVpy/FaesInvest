@@ -95,9 +95,9 @@ def investment_calc(entry: TableRow, google=False):
                 monthly_interest_month = amount_invested * daily_rate * days_in_month
             else:
                 if entry.investment_method == 'Daily':
-                    monthly_rate = daily_rate * days_in_month
+                    initial_monthly_rate = daily_rate * days_in_month
                 elif entry.investment_method == 'Daily 360':
-                    monthly_rate = daily_360_rate * days_in_month
+                    initial_monthly_rate = daily_360_rate * days_in_month
                 monthly_interest_month = amount_invested * initial_monthly_rate * (total_days_in_month / total_days_in_month)
         else:
             days_in_month = calendar.monthrange(month.year, month.month)[1]
@@ -109,7 +109,6 @@ def investment_calc(entry: TableRow, google=False):
                 monthly_interest_month = amount_invested * monthly_rate * (days_in_month / days_in_month)
             else:
                 monthly_interest_month = amount_invested * initial_monthly_rate * (days_in_month / days_in_month)
-            print(monthly_interest_month)
 
         data[month.strftime("%b-%Y")] = round(monthly_interest_month, 2)
 

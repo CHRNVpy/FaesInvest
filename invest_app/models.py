@@ -9,7 +9,8 @@ class Client(models.Model):
 
     INVESTMENT_COUNT_METHOD = [
         ('Monthly', 'Monthly'),
-        ('Daily', 'Daily')
+        ('Daily', 'Daily'),
+        ('Daily 360', 'Daily 360')
     ]
 
     investor_id = models.CharField(max_length=100)

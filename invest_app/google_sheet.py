@@ -32,6 +32,7 @@ def investment_calc(investor):
 
     # Calculate daily, monthly, and quarterly rates
     daily_rate = annual_rate / 365
+    daily_360_rate = annual_rate / 360
     monthly_rate = annual_rate / 12
 
     # Generate date range from start date to current date
@@ -65,23 +66,35 @@ def investment_calc(investor):
     for month in date_range_monthly:
         days_in_month = (end_date - month).days + 1
         if month == date_range_monthly[0] and start_date.day != 1 and start_date.day != 15:
-            monthly_interest_month = amount_invested * daily_rate * rest_days_in_first_month
+            if investor.investment_count_method == 'Daily 360':
+                monthly_interest_month = amount_invested * daily_360_rate * rest_days_in_first_month
+            else:
+                monthly_interest_month = amount_invested * daily_rate * rest_days_in_first_month
         elif month == date_range_monthly[0] and start_date.day == 15:
-            if investor.investment_count_method == 'Daily': #updates
-                monthly_rate = daily_rate * days_in_month # updates
+            if investor.investment_count_method == 'Daily':
+                monthly_rate = daily_rate * days_in_month
+            elif investor.investment_count_method == 'Daily 360':
+                monthly_rate = daily_360_rate * days_in_month
             monthly_interest_month = (amount_invested * monthly_rate * (days_in_month / days_in_month)) / 2
         elif month == date_range_monthly[-1] and end_date.day >= 15:
             # Calculate interest for the last month based on days passed
-            if investor.investment_count_method == 'Daily': #updates
-                monthly_rate = daily_rate * days_in_month # updates
+            if investor.investment_count_method == 'Daily':
+                monthly_rate = daily_rate * days_in_month
+            elif investor.investment_count_method == 'Daily 360':
+                monthly_rate = daily_360_rate * days_in_month
             monthly_interest_month = amount_invested * monthly_rate * (days_in_month / days_in_month)
         elif month == date_range_monthly[-1] and end_date.day < 15:
             # Calculate interest for the last month based on days passed
-            monthly_interest_month = amount_invested * daily_rate * days_in_month
+            if investor.investment_count_method == 'Daily 360':
+                monthly_interest_month = amount_invested * daily_360_rate * days_in_month
+            else:
+                monthly_interest_month = amount_invested * daily_rate * days_in_month
         else:
             days_in_month = calendar.monthrange(month.year, month.month)[1]
-            if investor.investment_count_method == 'Daily': #updates
-                monthly_rate = daily_rate * days_in_month # updates
+            if investor.investment_count_method == 'Daily':
+                monthly_rate = daily_rate * days_in_month
+            elif investor.investment_count_method == 'Daily 360':
+                monthly_rate = daily_360_rate * days_in_month
             monthly_interest_month = amount_invested * monthly_rate * (days_in_month / days_in_month)
 
         data[month.strftime("%b-%Y")] = round(monthly_interest_month, 2)
@@ -123,6 +136,7 @@ def reinvestment_calc(investor):
 
     # Calculate daily, monthly, and quarterly rates
     daily_rate = annual_rate / 365
+    daily_360_rate = annual_rate / 360
     monthly_rate = annual_rate / 12
 
     # Generate date range from start date to current date
@@ -157,23 +171,35 @@ def reinvestment_calc(investor):
     for month in date_range_monthly:
         days_in_month = (end_date - month).days + 1
         if month == date_range_monthly[0] and start_date.day != 1 and start_date.day != 15:
-            monthly_interest_month = amount_invested * daily_rate * rest_days_in_first_month
+            if investor.investment_count_method == 'Daily 360':
+                monthly_interest_month = amount_invested * daily_360_rate * rest_days_in_first_month
+            else:
+                monthly_interest_month = amount_invested * daily_rate * rest_days_in_first_month
         elif month == date_range_monthly[0] and start_date.day == 15:
-            if investor.investment_count_method == 'Daily': #updates
-                monthly_rate = daily_rate * days_in_month # updates
+            if investor.investment_count_method == 'Daily':
+                monthly_rate = daily_rate * days_in_month
+            elif investor.investment_count_method == 'Daily 360':
+                monthly_rate = daily_360_rate * days_in_month
             monthly_interest_month = (amount_invested * monthly_rate * (days_in_month / days_in_month)) / 2
         elif month == date_range_monthly[-1] and end_date.day >= 15:
             # Calculate interest for the last month based on days passed
-            if investor.investment_count_method == 'Daily': #updates
-                monthly_rate = daily_rate * days_in_month # updates
+            if investor.investment_count_method == 'Daily':
+                monthly_rate = daily_rate * days_in_month
+            elif investor.investment_count_method == 'Daily 360':
+                monthly_rate = daily_360_rate * days_in_month
             monthly_interest_month = amount_invested * monthly_rate * (days_in_month / days_in_month)
         elif month == date_range_monthly[-1] and end_date.day < 15:
             # Calculate interest for the last month based on days passed
-            monthly_interest_month = amount_invested * daily_rate * days_in_month
+            if investor.investment_count_method == 'Daily 360':
+                monthly_interest_month = amount_invested * daily_360_rate * days_in_month
+            else:
+                monthly_interest_month = amount_invested * daily_rate * days_in_month
         else:
             days_in_month = calendar.monthrange(month.year, month.month)[1]
-            if investor.investment_count_method == 'Daily': #updates
-                monthly_rate = daily_rate * days_in_month # updates
+            if investor.investment_count_method == 'Daily':
+                monthly_rate = daily_rate * days_in_month
+            elif investor.investment_count_method == 'Daily 360':
+                monthly_rate = daily_360_rate * days_in_month
             monthly_interest_month = amount_invested * monthly_rate * (days_in_month / days_in_month)
 
         data[month.strftime("%b-%Y")] = round(monthly_interest_month, 2)
