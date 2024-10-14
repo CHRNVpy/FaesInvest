@@ -124,7 +124,7 @@ def close_contract(request, client_id):
 
 @login_required
 def show_table(request):
-    clients = Client.objects.all()
+    clients = Client.objects.all().order_by('investment_date')
     data = get_investors_table(clients)
 
     json_data = json.loads(data)
@@ -141,7 +141,7 @@ def show_table(request):
 
 @login_required()
 def show_google_table(request):
-    clients = Client.objects.all()
+    clients = Client.objects.all().order_by('investment_date')
     update_spreadsheet(clients)
 
     return render(request, 'invest_app/show_google_table.html')
