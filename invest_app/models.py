@@ -4,7 +4,9 @@ from django.db import models
 class Client(models.Model):
     INVESTMENT_TYPE_CHOICES = [
         ('Direct Deposit', 'Direct Deposit'),
-        ('Reinvestment', 'Reinvestment')
+        ('Reinvestment', 'Reinvestment'),
+        ('Reinvestment Monthly', 'Reinvestment Monthly')
+
     ]
 
     INVESTMENT_COUNT_METHOD = [
@@ -20,7 +22,7 @@ class Client(models.Model):
     investment_date = models.DateField()
     investment_rate = models.FloatField()
     investment_amount = models.FloatField()
-    investment_type = models.CharField(max_length=15, choices=INVESTMENT_TYPE_CHOICES)
+    investment_type = models.CharField(max_length=50, choices=INVESTMENT_TYPE_CHOICES)
     investment_count_method = models.CharField(max_length=15, choices=INVESTMENT_COUNT_METHOD, default='Monthly')
     contract_end_date = models.DateField(null=True, blank=True)
 

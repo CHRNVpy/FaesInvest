@@ -105,6 +105,7 @@ def investment_calc(entry: TableRow, google=False):
                 monthly_rate = daily_rate * days_in_month
                 monthly_interest_month = amount_invested * monthly_rate * (days_in_month / days_in_month)
             elif entry.investment_method == 'Daily 360':
+                days_in_month = 30
                 monthly_rate = daily_360_rate * days_in_month
                 monthly_interest_month = amount_invested * monthly_rate * (days_in_month / days_in_month)
             else:

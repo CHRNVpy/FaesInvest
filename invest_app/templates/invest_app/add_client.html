@@ -92,6 +92,7 @@
                 <option value="" disabled selected>Select Investment Type</option>
                 <option value="Direct Deposit" {% if investment_type == "Direct Deposit" %}selected{% endif %}>Direct Deposit</option>
                 <option value="Reinvestment" {% if investment_type == "Reinvestment" %}selected{% endif %}>Reinvestment</option>
+                <option value="Reinvestment Monthly" {% if investment_type == "Reinvestment Monthly" %}selected{% endif %}>Reinvestment Monthly</option>
             </select>
             <select name="investment_count_method" required>
                 <option value="" disabled selected>Select Count method</option>
