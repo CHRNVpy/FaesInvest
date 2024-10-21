@@ -67,6 +67,7 @@ def investment_calc(investor):
         days_in_month = (end_date - month).days + 1
         if month == date_range_monthly[0] and start_date.day != 1 and start_date.day != 15:
             if investor.investment_count_method == 'Daily 360':
+                rest_days_in_first_month = 30 - start_date.day
                 monthly_interest_month = amount_invested * daily_360_rate * rest_days_in_first_month
             else:
                 monthly_interest_month = amount_invested * daily_rate * rest_days_in_first_month
@@ -74,6 +75,7 @@ def investment_calc(investor):
             if investor.investment_count_method == 'Daily':
                 monthly_rate = daily_rate * days_in_month
             elif investor.investment_count_method == 'Daily 360':
+                days_in_month = 30
                 monthly_rate = daily_360_rate * days_in_month
             monthly_interest_month = (amount_invested * monthly_rate * (days_in_month / days_in_month)) / 2
         elif month == date_range_monthly[-1] and end_date.day >= 15:
@@ -81,11 +83,13 @@ def investment_calc(investor):
             if investor.investment_count_method == 'Daily':
                 monthly_rate = daily_rate * days_in_month
             elif investor.investment_count_method == 'Daily 360':
+                days_in_month = 30 - end_date.day
                 monthly_rate = daily_360_rate * days_in_month
             monthly_interest_month = amount_invested * monthly_rate * (days_in_month / days_in_month)
         elif month == date_range_monthly[-1] and end_date.day < 15:
             # Calculate interest for the last month based on days passed
             if investor.investment_count_method == 'Daily 360':
+                days_in_month = 30 - end_date.day
                 monthly_interest_month = amount_invested * daily_360_rate * days_in_month
             else:
                 monthly_interest_month = amount_invested * daily_rate * days_in_month
@@ -94,6 +98,7 @@ def investment_calc(investor):
             if investor.investment_count_method == 'Daily':
                 monthly_rate = daily_rate * days_in_month
             elif investor.investment_count_method == 'Daily 360':
+                days_in_month = 30
                 monthly_rate = daily_360_rate * days_in_month
             monthly_interest_month = amount_invested * monthly_rate * (days_in_month / days_in_month)
 
@@ -172,6 +177,7 @@ def reinvestment_calc(investor):
         days_in_month = (end_date - month).days + 1
         if month == date_range_monthly[0] and start_date.day != 1 and start_date.day != 15:
             if investor.investment_count_method == 'Daily 360':
+                rest_days_in_first_month = 30 - start_date.day
                 monthly_interest_month = amount_invested * daily_360_rate * rest_days_in_first_month
             else:
                 monthly_interest_month = amount_invested * daily_rate * rest_days_in_first_month
@@ -179,6 +185,7 @@ def reinvestment_calc(investor):
             if investor.investment_count_method == 'Daily':
                 monthly_rate = daily_rate * days_in_month
             elif investor.investment_count_method == 'Daily 360':
+                days_in_month = 30
                 monthly_rate = daily_360_rate * days_in_month
             monthly_interest_month = (amount_invested * monthly_rate * (days_in_month / days_in_month)) / 2
         elif month == date_range_monthly[-1] and end_date.day >= 15:
@@ -186,11 +193,13 @@ def reinvestment_calc(investor):
             if investor.investment_count_method == 'Daily':
                 monthly_rate = daily_rate * days_in_month
             elif investor.investment_count_method == 'Daily 360':
+                days_in_month = 30 - end_date.day
                 monthly_rate = daily_360_rate * days_in_month
             monthly_interest_month = amount_invested * monthly_rate * (days_in_month / days_in_month)
         elif month == date_range_monthly[-1] and end_date.day < 15:
             # Calculate interest for the last month based on days passed
             if investor.investment_count_method == 'Daily 360':
+                days_in_month = 30 - end_date.day
                 monthly_interest_month = amount_invested * daily_360_rate * days_in_month
             else:
                 monthly_interest_month = amount_invested * daily_rate * days_in_month
@@ -282,6 +291,7 @@ def reinvestment_monthly_calc(investor):
         days_in_month = (end_date - month).days + 1
         if month == date_range_monthly[0] and start_date.day != 1 and start_date.day != 15:
             if investor.investment_count_method == 'Daily 360':
+                rest_days_in_first_month = 30 - start_date.day
                 monthly_interest_month = amount_invested * daily_360_rate * rest_days_in_first_month
             else:
                 monthly_interest_month = amount_invested * daily_rate * rest_days_in_first_month
@@ -289,6 +299,7 @@ def reinvestment_monthly_calc(investor):
             if investor.investment_count_method == 'Daily':
                 monthly_rate = daily_rate * days_in_month
             elif investor.investment_count_method == 'Daily 360':
+                days_in_month = 30
                 monthly_rate = daily_360_rate * days_in_month
             monthly_interest_month = (amount_invested * monthly_rate * (days_in_month / days_in_month)) / 2
         elif month == date_range_monthly[-1] and end_date.day >= 15:
@@ -296,11 +307,13 @@ def reinvestment_monthly_calc(investor):
             if investor.investment_count_method == 'Daily':
                 monthly_rate = daily_rate * days_in_month
             elif investor.investment_count_method == 'Daily 360':
+                days_in_month = 30 - end_date.day
                 monthly_rate = daily_360_rate * days_in_month
             monthly_interest_month = amount_invested * monthly_rate * (days_in_month / days_in_month)
         elif month == date_range_monthly[-1] and end_date.day < 15:
             # Calculate interest for the last month based on days passed
             if investor.investment_count_method == 'Daily 360':
+                days_in_month = 30 - end_date.day
                 monthly_interest_month = amount_invested * daily_360_rate * days_in_month
             else:
                 monthly_interest_month = amount_invested * daily_rate * days_in_month

@@ -80,6 +80,11 @@ def investment_calc(entry: TableRow, google=False):
                 monthly_rate = daily_rate * days_in_month
                 monthly_interest_month = amount_invested * monthly_rate * (rest_days_in_first_month / days_in_month)
             elif entry.investment_method == 'Daily 360':
+                days_in_month = 30
+                if start_date.day == 1:
+                    rest_days_in_first_month = days_in_month
+                else:
+                    rest_days_in_first_month = 30 - start_date.day
                 monthly_rate = daily_360_rate * days_in_month
                 monthly_interest_month = amount_invested * monthly_rate * (rest_days_in_first_month / days_in_month)
             else:
@@ -89,7 +94,8 @@ def investment_calc(entry: TableRow, google=False):
                     monthly_rate = daily_rate * days_in_month
                     monthly_interest_month = amount_invested * monthly_rate * (rest_days_in_first_month / days_in_month)
         elif month == date_range_monthly[-1]:
-            total_days_in_month = calendar.monthrange(month.year, month.month)[1]
+            total_days_in_month = 30 if entry.investment_method == 'Daily 360' \
+                else calendar.monthrange(month.year, month.month)[1]
             if entry.finished and end_date.day < total_days_in_month:
                 daily_rate = daily_360_rate if entry.investment_method == 'Daily 360' else daily_rate
                 monthly_interest_month = amount_invested * daily_rate * days_in_month
@@ -97,6 +103,7 @@ def investment_calc(entry: TableRow, google=False):
                 if entry.investment_method == 'Daily':
                     initial_monthly_rate = daily_rate * days_in_month
                 elif entry.investment_method == 'Daily 360':
+                    days_in_month = end_date.day
                     initial_monthly_rate = daily_360_rate * days_in_month
                 monthly_interest_month = amount_invested * initial_monthly_rate * (total_days_in_month / total_days_in_month)
         else:
