@@ -1,0 +1,200 @@
+<!-- templates/expenses_app/list_invoices.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        .table_entries {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .table-container {
+            position: relative;
+            width: 100%;
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+            white-space: nowrap;
+        }
+        th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Freeze first 3 columns */
+        th:nth-child(-n+2),
+        td:nth-child(-n+2) {
+            position: sticky;
+            background-color: #fff; /* Ensure background-color to overlap other columns */
+            z-index: 1;
+        }
+
+        th:nth-child(1), td:nth-child(1) {
+            left: 0;
+            z-index: 2; /* Ensure higher z-index */
+        }
+        th:nth-child(2), td:nth-child(2) {
+            left: 110px; /* Adjust based on the width of the first column */
+            z-index: 3; /* Ensure higher z-index */
+        }
+
+        /* Ensure frozen column headers are on top of everything */
+        th:nth-child(-n+2) {
+            z-index: 5;
+        }
+
+        /* Add box-shadow to create a separation effect */
+        th:nth-child(2) {
+            box-shadow: 2px 0 5px -2px rgba(0,0,0,0.3);
+        }
+
+        .back-button, .close-contract-button {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #006dd1;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover, .close-contract-button:hover {
+            background-color: #0056b3;
+        }
+        .add-trans-button, .update-sheet-button{
+            margin-top: 10px;
+            margin-bottom: 20px;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #006dd1;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .add-trans-button:hover, .update-sheet-button:hover{
+            background-color: #0056b3;
+        }
+        .form-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .filter-form {
+            margin-right: 15px;
+        }
+        select {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+            cursor: pointer;
+            width: 400px;
+        }
+        select:focus {
+            outline: none;
+            border-color: #006dd1;
+            box-shadow: 0 0 0 2px rgba(0,109,209,0.2);
+        }
+        .clickable-row {
+            cursor: pointer;
+        }
+        .total_balance {
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Invoice List</h1>
+
+    <!-- Table to display invoices -->
+    <div class="table-container">
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Entity Name</th>
+                <th>Vendor Name</th>
+                <th>Invoice Number</th>
+                <th>Invoice Date</th>
+                <th>Description</th>
+                <th>Expense name</th>
+                <th>Dt Account</th>
+                <th>Cr Account</th>
+                <th>Amount</th>
+                <!-- Dynamically generated month/year columns -->
+                {% for month in header_months %}
+                    <th>{{ month }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for invoice_data in invoices_with_months %}
+                <tr>
+                    <td>{{ invoice_data.invoice.entity.name }}</td>
+                    <td>{{ invoice_data.invoice.vendor_name }}</td>
+                    <td>
+                        <a href="{{ invoice_data.invoice.invoice_file.url }}" target="_blank">{{ invoice_data.invoice.invoice_number }}</a>
+                    </td>
+                    <td>{{ invoice_data.invoice.invoice_date }}</td>
+                    <td>{{ invoice_data.invoice.description }}</td>
+                    <td>{{ invoice_data.invoice.expense_name }}</td>
+                    <td>{{ invoice_data.invoice.dt_account }}</td>
+                    <td>{{ invoice_data.invoice.cr_account }}</td>
+                    <td>{{ invoice_data.invoice.invoice_amount }}</td>
+                    <!-- Dynamically display monthly amounts -->
+                    {% for month in invoice_data.formatted_months %}
+                        <td>{{ invoice_data.monthly_amount }}</td>
+                    {% endfor %}
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7">No invoices found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    <button class="back-button" onclick="location.href='{% url 'expenses_app:home' %}'">Back Home</button>
+</body>
+</html>

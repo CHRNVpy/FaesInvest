@@ -112,3 +112,16 @@ def push_to_google_table(request):
             return JsonResponse({'success': True})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
+
+
+@login_required()
+def update_sheet(request):
+    data = json.loads(request.body)
+    if data.get('update', False):
+        table = Table.objects.filter(name=data.get('selectedCompany')).first()
+        try:
+            rows = TableRow.objects.filter(table_id__name=table.name)
+            google_sheet.update_spreadsheet(rows, table.name)
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})

@@ -398,19 +398,25 @@ def list_shares_monthly(request):
     named_months = [{'month': calendar.month_name[month['month']]} for month in sorted_months]
     selected_year = int(request.GET.get('year')) if request.GET.get('year') else None
     selected_month = request.GET.get('month')
+    filter_ended_loan = request.GET.get('filter', 'false') == 'true'
 
     context = {
         'funds': funds,
         'years': years,
         'months': named_months,
         'selected_year': selected_year if selected_year else None,
-        'selected_month': selected_month
+        'selected_month': selected_month,
+        'filter_ended_loan': filter_ended_loan
     }
 
     if selected_year and selected_month:
         month_number = list(calendar.month_name).index(selected_month.capitalize())
         previous_month = 12 if month_number == 1 else month_number - 1
-        properties = Property.objects.all()
+        if filter_ended_loan:
+            properties = Property.objects.filter(closed__isnull=False)
+            print(properties)
+        else:
+            properties = Property.objects.all()
         extended_records = []
 
         for property in properties:
@@ -448,18 +454,24 @@ def list_shares_monthly(request):
                     extended_records.append(share)
                     skip_fund[share.fund_id] = False  # Mark this fund as processed
 
-        # Original records with the selected year and month
-        records = list(PropertyFundShare.objects.filter(
-            Q(date_of_change__year=selected_year) & Q(date_of_change__month=month_number)
-        ).order_by('date_of_change'))
+        if not filter_ended_loan:
+            # Original records with the selected year and month
+            records = list(PropertyFundShare.objects.filter(
+                Q(date_of_change__year=selected_year) & Q(date_of_change__month=month_number)
+            ).order_by('date_of_change'))
 
-        # Extend the original records with the updated shares
-        records.extend(extended_records)
+            # Extend the original records with the updated shares
+            records.extend(extended_records)
 
-        # You may want to sort the records again by date_of_change if needed
-        records = sorted(records, key=lambda x: x.date_of_change)
+            # You may want to sort the records again by date_of_change if needed
+            records = sorted(records, key=lambda x: x.date_of_change)
 
-        context['shares'] = records
+            context['shares'] = records
+
+        else:
+            records = sorted(extended_records, key=lambda x: x.date_of_change)
+
+            context['shares'] = records
 
     return render(request, 'mortgage_app/fund_shares_monthly.html', context)
 

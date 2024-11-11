@@ -102,7 +102,7 @@
         .back-button:hover, .close-contract-button:hover {
             background-color: #0056b3;
         }
-        .add-trans-button {
+        .add-trans-button, .update-sheet-button{
             margin-top: 10px;
             margin-bottom: 20px;
             padding: 10px;
@@ -114,7 +114,7 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
-        .add-trans-button:hover {
+        .add-trans-button:hover, .update-sheet-button:hover{
             background-color: #0056b3;
         }
         .form-container {
@@ -165,6 +165,7 @@
                 </div>
             </form>
             <button id="addTransaction" class="add-trans-button">Add transaction</button>
+            <button id="updateGoogleSheets" class="update-sheet-button">Update current Sheet</button>
 <!--            <button id="closeTransaction" class="close-trans-button">Close transaction</button>-->
 <!--            <button id="saveToGoogleSheets" class="save-button">Save to Google Sheets</button>-->
             {% if company_table_data %}
@@ -327,6 +328,33 @@
             .catch(error => {
                 console.error('Error:', error);
                 alert('An error occurred while updating the finished date.');
+            });
+        });
+
+        document.getElementById('updateGoogleSheets').addEventListener('click', function() {
+            const selectedCompany = document.getElementById('company').value;
+            fetch('{% url "intercompany_app:update_google_sheets" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    update: true,
+                    selectedCompany: selectedCompany
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Sheet updated successfully!');
+                } else {
+                    alert('Error updating Sheet: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating Sheet.');
             });
         });
 

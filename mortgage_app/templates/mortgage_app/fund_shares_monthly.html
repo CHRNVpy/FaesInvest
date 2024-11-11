@@ -136,6 +136,46 @@
             border-color: #006dd1;
             box-shadow: 0 0 0 2px rgba(0,109,209,0.2);
         }
+        /* Toggle switch styles */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        #filterCheckbox {
+            display: none;
+        }
+        #filterCheckbox + label {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            background-color: #ccc;
+            border-radius: 34px;
+            transition: background-color 0.4s;
+            cursor: pointer;
+        }
+        #filterCheckbox + label:after {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.4s;
+        }
+        #filterCheckbox:checked + label {
+            background-color: #006dd1;
+        }
+        #filterCheckbox:checked + label:after {
+            transform: translateX(26px);
+        }
+        .toggle-label {
+            margin-left: 10px;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
@@ -159,6 +199,11 @@
                     {% endfor %}
                 </select>
             </form>
+            <div class="toggle-container">
+                <input type="checkbox" id="filterCheckbox" onclick="toggleFilter()" {% if filter_ended_loan %}checked{% endif %}>
+                <label for="filterCheckbox"></label>
+                <span class="toggle-label">Shows loans ended in selected year/month</span>
+            </div>
             <button id="saveToCsv" class="save-button" onclick="triggerCsvDownload()">Save to CSV</button>
             {% if shares %}
                 <div class="table-container">
@@ -229,6 +274,13 @@
 
         // Trigger the URL update on page load if needed
         updateCsvDownloadUrl();
+        function toggleFilter() {
+            const filterCheckbox = document.getElementById('filterCheckbox');
+            const filter = filterCheckbox.checked ? 'true' : 'false';
+            const url = new URL(window.location.href);
+            url.searchParams.set('filter', filter);
+            window.location.href = url.toString();
+        }
     </script>
 </body>
 </html>

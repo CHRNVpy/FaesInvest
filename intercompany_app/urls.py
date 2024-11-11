@@ -10,5 +10,6 @@ urlpatterns = [
     path('view_table/', views.view_table, name='view_table'),
     path('add_transaction/', views.add_transaction, name='add_transaction'),
     path('edit_finished_date/', views.edit_finished_date, name='edit_finished_date'),
-    path('save_to_google_sheets/', views.push_to_google_table, name="save_to_google_sheets")
+    path('save_to_google_sheets/', views.push_to_google_table, name="save_to_google_sheets"),
+    path('update_google_sheets/', views.update_sheet, name="update_google_sheets")
 ]
