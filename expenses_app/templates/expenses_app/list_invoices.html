@@ -85,7 +85,7 @@
             box-shadow: 2px 0 5px -2px rgba(0,0,0,0.3);
         }
 
-        .back-button, .close-contract-button {
+        .back-button, .close-contract-button, .save-button {
             margin-top: 20px;
             padding: 10px;
             font-size: 16px;
@@ -96,105 +96,76 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
-        .back-button:hover, .close-contract-button:hover {
+        .back-button:hover, .close-contract-button:hover, .save-button:hover {
             background-color: #0056b3;
-        }
-        .add-trans-button, .update-sheet-button{
-            margin-top: 10px;
-            margin-bottom: 20px;
-            padding: 10px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            background-color: #006dd1;
-            color: white;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .add-trans-button:hover, .update-sheet-button:hover{
-            background-color: #0056b3;
-        }
-        .form-container {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .filter-form {
-            margin-right: 15px;
-        }
-        select {
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: white;
-            cursor: pointer;
-            width: 400px;
-        }
-        select:focus {
-            outline: none;
-            border-color: #006dd1;
-            box-shadow: 0 0 0 2px rgba(0,109,209,0.2);
-        }
-        .clickable-row {
-            cursor: pointer;
-        }
-        .total_balance {
-            font-weight: bold;
         }
 
     </style>
 </head>
 <body>
     <h1>Invoice List</h1>
-
+    <div class="button-container">
+        <button id="saveToGoogleSheets" class="save-button">Save to Google Sheets</button>
+    </div>
     <!-- Table to display invoices -->
     <div class="table-container">
     <table border="1">
-        <thead>
-            <tr>
-                <th>Entity Name</th>
-                <th>Vendor Name</th>
-                <th>Invoice Number</th>
-                <th>Invoice Date</th>
-                <th>Description</th>
-                <th>Expense name</th>
-                <th>Dt Account</th>
-                <th>Cr Account</th>
-                <th>Amount</th>
-                <!-- Dynamically generated month/year columns -->
-                {% for month in header_months %}
-                    <th>{{ month }}</th>
-                {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for invoice_data in invoices_with_months %}
+    <thead>
+        <tr>
+            {% for header in headers %}
+                <th>{{ header }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% if rows %}
+            {% for row in rows %}
                 <tr>
-                    <td>{{ invoice_data.invoice.entity.name }}</td>
-                    <td>{{ invoice_data.invoice.vendor_name }}</td>
-                    <td>
-                        <a href="{{ invoice_data.invoice.invoice_file.url }}" target="_blank">{{ invoice_data.invoice.invoice_number }}</a>
-                    </td>
-                    <td>{{ invoice_data.invoice.invoice_date }}</td>
-                    <td>{{ invoice_data.invoice.description }}</td>
-                    <td>{{ invoice_data.invoice.expense_name }}</td>
-                    <td>{{ invoice_data.invoice.dt_account }}</td>
-                    <td>{{ invoice_data.invoice.cr_account }}</td>
-                    <td>{{ invoice_data.invoice.invoice_amount }}</td>
-                    <!-- Dynamically display monthly amounts -->
-                    {% for month in invoice_data.formatted_months %}
-                        <td>{{ invoice_data.monthly_amount }}</td>
+                    {% for cell in row %}
+                        <td>
+                            {% if forloop.counter == 3 and cell.url %}
+                                <a href="{{ cell.url }}" target="_blank">{{ cell.text }}</a>
+                            {% else %}
+                                {{ cell }}
+                            {% endif %}
+                        </td>
                     {% endfor %}
                 </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="7">No invoices found.</td>
-                </tr>
             {% endfor %}
-        </tbody>
+        {% else %}
+            <tr>
+                <td colspan="{{ headers|length }}">No invoices found.</td>
+            </tr>
+        {% endif %}
+    </tbody>
     </table>
     </div>
     <button class="back-button" onclick="location.href='{% url 'expenses_app:home' %}'">Back Home</button>
+    <script>
+        document.getElementById('saveToGoogleSheets').addEventListener('click', function() {
+            fetch('{% url "expenses_app:save_to_google_sheets" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    update: true
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Data saved to Google Sheets successfully!');
+                } else {
+                    alert('Error saving data to Google Sheets: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while saving data to Google Sheets.');
+            });
+        });
+    </script>
 </body>
 </html>
