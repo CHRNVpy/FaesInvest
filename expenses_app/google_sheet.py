@@ -27,7 +27,8 @@ def build_table(invoices: List[Invoice], google=False) -> tuple[list[dict[str, l
         data = {
             'Entity Name': invoice.entity.name,
             'Vendor Name': invoice.vendor_name,
-            'Invoice Number': {'text': invoice.invoice_number, 'url': invoice.invoice_file.url},
+            'Invoice Number': {'text': invoice.invoice_number, 'url': invoice.invoice_file.url}
+            if invoice.invoice_file else {'text': invoice.invoice_number},
             'Invoice Date': invoice.invoice_date,
             'Description': invoice.description,
             'Expense name': invoice.expense_name,

@@ -130,6 +130,8 @@
                         <td>
                             {% if forloop.counter == 3 and cell.url %}
                                 <a href="{{ cell.url }}" target="_blank">{{ cell.text }}</a>
+                            {% elif forloop.counter == 3 and not cell.url %}
+                                {{ cell.text }}
                             {% else %}
                                 {{ cell }}
                             {% endif %}

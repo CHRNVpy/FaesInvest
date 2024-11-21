@@ -27,3 +27,5 @@ class InvoiceForm(forms.ModelForm):
             'dt_account': 'Dt Account',
             'cr_account': 'Cr Account',
         }
+
+        invoice_file = forms.FileField(required=False)

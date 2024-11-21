@@ -15,6 +15,7 @@ class TableRow(models.Model):
 
     name = models.CharField(max_length=255)
     loan_id = models.CharField(max_length=255, null=True, blank=True)
+    gl_id = models.CharField(max_length=255, null=True, blank=True)
     table = models.ForeignKey(Table, on_delete=models.CASCADE, related_name='projects')
     investment_amount = models.DecimalField(max_digits=15, decimal_places=2)
     interest_rate = models.DecimalField(max_digits=5, decimal_places=2)

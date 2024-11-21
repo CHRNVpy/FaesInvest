@@ -15,7 +15,7 @@ class Invoice(models.Model):
     vendor_name = models.CharField(max_length=100)
     invoice_number = models.CharField(max_length=50, unique=True)
     invoice_date = models.DateField()
-    invoice_file = models.FileField(upload_to='invoices/')
+    invoice_file = models.FileField(upload_to='invoices/', blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     expense_name = models.CharField(max_length=100)
     dt_account = models.CharField(max_length=100)

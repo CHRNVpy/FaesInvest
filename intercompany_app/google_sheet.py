@@ -56,6 +56,7 @@ def investment_calc(entry: TableRow, google=False):
         'Principal': amount_invested,
         'Description': entry.name,
         'Loan ID': entry.loan_id if entry.loan_id else '',
+        'GL ID': entry.gl_id if entry.gl_id else '',
         'Rate': entry.interest_rate,
     }
 
@@ -66,6 +67,7 @@ def investment_calc(entry: TableRow, google=False):
             'Principal': amount_invested,
             'Description': entry.name,
             'Loan ID': entry.loan_id if entry.loan_id else '',
+            'GL ID': entry.gl_id if entry.gl_id else '',
             'Rate': entry.interest_rate,
         }
 
