@@ -475,6 +475,40 @@ def list_shares_monthly(request):
 
     return render(request, 'mortgage_app/fund_shares_monthly.html', context)
 
+@login_required
+def available_shares(request):
+    properties = Property.objects.all()
+
+    valid_shares = []
+
+    for property in properties:
+
+        latest_date_subquery = PropertyFundShare.objects.filter(
+            property=property,
+            fund=OuterRef('fund')
+        ).order_by('-date_of_change').values('date_of_change')[:1]
+
+        latest_shares = PropertyFundShare.objects.filter(
+            property=property,
+            date_of_change=Subquery(latest_date_subquery)
+        )
+
+        available_share = property.cost - sum([share.share_amount for share in latest_shares])
+
+        property_info = {'loan_id': property.loan_id,
+                         'name': property.name,
+                         'cost': property.cost,
+                         'available_share': available_share,
+                         'created': property.created,
+                         'closed': property.closed}
+
+        if available_share != 0:
+            valid_shares.append(property_info)
+
+    context = {'shares': valid_shares}
+
+    return render(request, 'mortgage_app/available_shares.html', context)
+
 
 @csrf_exempt
 @require_POST
@@ -598,6 +632,54 @@ def save_to_csv(request):
             share.property.name,
             share.fund.name,
             share.share_amount
+        ])
+
+    return response
+
+def save_to_csv_available_shares(request):
+    properties = Property.objects.all()
+
+    valid_shares = []
+
+    for property in properties:
+
+        latest_date_subquery = PropertyFundShare.objects.filter(
+            property=property,
+            fund=OuterRef('fund')
+        ).order_by('-date_of_change').values('date_of_change')[:1]
+
+        latest_shares = PropertyFundShare.objects.filter(
+            property=property,
+            date_of_change=Subquery(latest_date_subquery)
+        )
+
+        available_share = property.cost - sum([share.share_amount for share in latest_shares])
+
+        property_info = {'loan_id': property.loan_id,
+                         'name': property.name,
+                         'cost': property.cost,
+                         'available_share': available_share,
+                         'created': property.created,
+                         'closed': property.closed}
+
+        if available_share != 0:
+            valid_shares.append(property_info)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="available_shares.csv"'
+
+    # CSV writer
+    writer = csv.writer(response)
+    writer.writerow(['Loan ID', 'Property Name', 'Cost', 'Available Share', 'Created', 'Closed'])
+
+    for share in valid_shares:
+        writer.writerow([
+            share['loan_id'],
+            share['name'],
+            share['cost'],
+            share['available_share'],
+            share['created'],
+            share['closed']
         ])
 
     return response

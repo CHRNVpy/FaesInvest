@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        .shares-history {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .table-container {
+            position: relative;
+            width: 100%;
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+            white-space: nowrap;
+        }
+        th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+<!--        /* Freeze first 3 columns */-->
+<!--        th:nth-child(-n+2),-->
+<!--        td:nth-child(-n+2) {-->
+<!--            position: sticky;-->
+<!--            background-color: #fff; /* Ensure background-color to overlap other columns */-->
+<!--            z-index: 1;-->
+<!--        }-->
+
+<!--        th:nth-child(1), td:nth-child(1) {-->
+<!--            left: 0;-->
+<!--            z-index: 2; /* Ensure higher z-index */-->
+<!--        }-->
+<!--        th:nth-child(2), td:nth-child(2) {-->
+<!--            left: 105px; /* Adjust based on the width of the first column */-->
+<!--            z-index: 3; /* Ensure higher z-index */-->
+<!--        }-->
+
+<!--        /* Ensure frozen column headers are on top of everything */-->
+<!--        th:nth-child(-n+2) {-->
+<!--            z-index: 5;-->
+<!--        }-->
+
+<!--        /* Add box-shadow to create a separation effect */-->
+<!--        th:nth-child(2) {-->
+<!--            box-shadow: 2px 0 5px -2px rgba(0,0,0,0.3);-->
+<!--        }-->
+
+
+        .back-button, .close-contract-button {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #006dd1;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover, .close-contract-button:hover {
+            background-color: #0056b3;
+        }
+        .save-button {
+            margin-top: 10px;
+            margin-bottom: 20px;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .save-button:hover {
+            background-color: #45a049;
+        }
+        .form-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .filter-form {
+            margin-right: 15px;
+        }
+        select {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+            cursor: pointer;
+            width: 200px;
+        }
+        select:focus {
+            outline: none;
+            border-color: #006dd1;
+            box-shadow: 0 0 0 2px rgba(0,109,209,0.2);
+        }
+        /* Toggle switch styles */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        #filterCheckbox {
+            display: none;
+        }
+        #filterCheckbox + label {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            background-color: #ccc;
+            border-radius: 34px;
+            transition: background-color 0.4s;
+            cursor: pointer;
+        }
+        #filterCheckbox + label:after {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.4s;
+        }
+        #filterCheckbox:checked + label {
+            background-color: #006dd1;
+        }
+        #filterCheckbox:checked + label:after {
+            transform: translateX(26px);
+        }
+        .toggle-label {
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="shares-history">
+            <h2>Available shares</h2>
+            <button id="saveToCsv" class="save-button" onclick="triggerCsvDownload()">Save to CSV</button>
+            {% if shares %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Loan ID</th>
+                                <th>Property Name</th>
+                                <th>Cost</th>
+                                <th>Available Share</th>
+                                <th>Created</th>
+                                <th>Closed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for share in shares %}
+                            <tr>
+                                <td>{{ share.loan_id }}</td>
+                                <td>{{ share.name }}</td>
+                                <td>${{ share.cost }}</td>
+                                <td>${{ share.available_share }}</td>
+                                <td>{{ share.created }}</td>
+                                <td>{{ share.closed }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>No Shares found.</p>
+            {% endif %}
+        </div>
+        <button class="back-button" onclick="location.href='{% url 'mortgage_app:loan_book' %}'">Back to Loan Book</button>
+    </div>
+    <script>
+        function updateCsvDownloadUrl() {
+<!--            const selectedYear = document.getElementById('year').value;-->
+<!--            const selectedMonth = document.getElementById('month').value;-->
+            const baseUrl = '{% url "mortgage_app:save_to_csv_available_shares" %}';
+
+            // Construct the URL for CSV download
+            const url = `${baseUrl}`;
+
+            // Store the URL in a global variable for use in the click handler
+            window.csvDownloadUrl = url;
+            window.csvFileName = `available_shares_data.csv`;
+        }
+
+        function triggerCsvDownload() {
+            if (!window.csvDownloadUrl) {
+                alert('Please select both year and month.');
+                return;
+            }
+
+            // Create a temporary link element
+            const link = document.createElement('a');
+            link.href = window.csvDownloadUrl;
+            link.download = window.csvFileName; // Default file name
+            link.style.display = 'none'; // Hide the link element
+
+            // Append the link to the body
+            document.body.appendChild(link);
+
+            // Trigger the click event to start the download
+            link.click();
+
+            // Remove the link from the document
+            document.body.removeChild(link);
+        }
+
+        // Trigger the URL update on page load if needed
+        updateCsvDownloadUrl();
+        function toggleFilter() {
+            const filterCheckbox = document.getElementById('filterCheckbox');
+            const filter = filterCheckbox.checked ? 'true' : 'false';
+            const url = new URL(window.location.href);
+            url.searchParams.set('filter', filter);
+            window.location.href = url.toString();
+        }
+    </script>
+</body>
+</html>

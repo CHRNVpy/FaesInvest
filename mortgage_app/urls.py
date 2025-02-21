@@ -16,6 +16,8 @@ urlpatterns = [
     path('get_property_info/', views.get_property_info, name='get_property_info'),
     path('fund_shares', views.list_shares, name='fund_shares'),
     path('fund_shares_monthly', views.list_shares_monthly, name='fund_shares_monthly'),
+    path('available_shares', views.available_shares, name='available_shares'),
     path('save-to-google-sheets/', views.save_to_google_sheets, name='save_to_google_sheets'),
     path('save-to-csv/', views.save_to_csv, name='save_to_csv'),
+    path('save-to-csv-available-shares/', views.save_to_csv_available_shares, name='save_to_csv_available_shares'),
 ]

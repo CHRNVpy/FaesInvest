@@ -24,7 +24,7 @@
             align-items: center;
         }
         .button-container button {
-            margin: 10px;
+            margin: 5px;
             padding: 15px 30px;
             font-size: 16px;
             border: none;
@@ -74,7 +74,8 @@
         <button onclick="location.href='{% url 'mortgage_app:property_fund_share_add' %}'">Add fund share</button>
         <button class="property-button" onclick="location.href='{% url 'mortgage_app:property_list' %}'">List Property</button>
         <button class="shares-button" onclick="location.href='{% url 'mortgage_app:fund_shares' %}'">List Shares</button>
-        <button class="monthly-shares-button" onclick="location.href='{% url 'mortgage_app:fund_shares_monthly' %}'">List Shares Monthly</button>
+        <button class="shares-button" onclick="location.href='{% url 'mortgage_app:fund_shares_monthly' %}'">List Shares Monthly</button>
+        <button class="shares-button" onclick="location.href='{% url 'mortgage_app:available_shares' %}'">List Available Shares</button>
         <button class="back-button" onclick="location.href='{% url 'mortgage_app:home' %}'">Back to Home</button>
         <button class="choose-app" onclick="location.href='{% url 'choose_app' %}'">Change App</button>
     </div>
