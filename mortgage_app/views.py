@@ -120,7 +120,7 @@ def list_property(request):
     })
 
 
-@login_required()
+@login_required
 def property_detail(request, loan_id):
     property = get_object_or_404(Property, loan_id=loan_id)
     funds = Fund.objects.all()

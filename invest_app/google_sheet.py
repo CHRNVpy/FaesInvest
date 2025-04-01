@@ -193,7 +193,7 @@ def reinvestment_calc(investor):
             if investor.investment_count_method == 'Daily':
                 monthly_rate = daily_rate * days_in_month
             elif investor.investment_count_method == 'Daily 360':
-                days_in_month = 30 - end_date.day
+                days_in_month = (30 - end_date.day) if end_date.day < 30 else 30
                 monthly_rate = daily_360_rate * days_in_month
             monthly_interest_month = amount_invested * monthly_rate * (days_in_month / days_in_month)
         elif month == date_range_monthly[-1] and end_date.day < 15:
